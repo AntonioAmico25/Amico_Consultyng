@@ -1,0 +1,82 @@
+{
+  "project": "Amico Consultyng",
+  "core_name": "AMICO Core",
+  "version": "1.0.0",
+  "architecture": "modular-multitenant-saas",
+  "principles": [
+    "single-core-shared-services",
+    "tenant-isolation",
+    "rbac-by-context",
+    "auditability-by-design",
+    "ai-governance",
+    "human-approval-for-critical-actions",
+    "reports-in-screen-pdf-excel",
+    "contextual-f1-help"
+  ],
+  "core_services": [
+    "identity",
+    "authentication",
+    "multitenancy",
+    "rbac",
+    "audit-log",
+    "workflow",
+    "notifications",
+    "agenda",
+    "rules-engine",
+    "documents-evidence",
+    "integrations-api",
+    "ai-orchestration",
+    "bi-analytics"
+  ],
+  "modules": [
+    "Direção & Governança",
+    "Sistema de Gestão",
+    "Engenharia de Produtos",
+    "Engenharia de Processos",
+    "PPCP",
+    "Suprimentos",
+    "Logística",
+    "Produção",
+    "Recursos Humanos",
+    "Segurança do Trabalho",
+    "Manutenção Industrial",
+    "Ferramentaria",
+    "Comercial & CRM",
+    "Financeiro & Controladoria",
+    "BI & Relatórios"
+  ],
+  "agents": [
+    "CEO",
+    "Sistema de Gestão",
+    "Auditor",
+    "Compliance",
+    "Engenharia",
+    "PPCP/MRP",
+    "Produção",
+    "Suprimentos",
+    "Logística",
+    "Manutenção",
+    "RH",
+    "Segurança",
+    "Comercial",
+    "Financeiro",
+    "BI/Data Analyst"
+  ],
+  "erp_rules": {
+    "op_of_owner": "PPCP",
+    "mrp_default_daily_runs": 3,
+    "automatic_nc": true,
+    "configurable_process_block": true,
+    "formal_deviation_approval": true,
+    "screen_reports": true,
+    "pdf_export": true,
+    "excel_export": true,
+    "cross_module_analytics": true
+  },
+  "feature_states": [
+    "published",
+    "homologation",
+    "development",
+    "planned"
+  ]
+}
