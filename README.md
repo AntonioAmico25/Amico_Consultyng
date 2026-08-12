@@ -1,40 +1,72 @@
-# Amico Consultyng — Site Institucional
+# Amico Consultyng — Ecossistema Corporativo
 
-Site corporativo oficial da **Amico Consultyng**, com foco em:
+A **Amico Consultyng** evolui como um ecossistema modular de gestão empresarial, integrando **Sistema de Gestão, ERP, MRP, PPCP, BI, automação e inteligência artificial**.
 
-- Governança operacional
-- Sistemas de Gestão da Qualidade
-- Controle documental e rastreabilidade
-- Auditorias, compliance e certificações
-- Indicadores, automação e inteligência artificial
-- Plataforma AMICO OS
+## AMICO Core
 
-## Estrutura publicada
+O **AMICO Core** é a camada central de arquitetura, governança, segurança, dados, workflows, IA e integrações do ecossistema.
 
-- Página inicial institucional
-- Soluções
-- Amico SGQ Digital
-- Módulos do ecossistema AMICO OS
-- Processo de implantação
-- Materiais e conteúdos
-- Sobre a Amico Consultyng
-- Contato por WhatsApp e e-mail
-- SEO básico e layout responsivo
+Documentação oficial da arquitetura:
 
-## Tecnologias
+- [`docs/AMICO_CORE_ARQUITETURA.md`](docs/AMICO_CORE_ARQUITETURA.md) — arquitetura mestre, módulos, agentes, regras e prioridades técnicas.
+- [`config/amico-core.json`](config/amico-core.json) — manifesto estruturado de capacidades para evolução técnica e integrações.
 
-O site utiliza HTML, CSS e JavaScript puro, sem dependências pagas. Pode ser publicado gratuitamente por GitHub Pages, Cloudflare Pages, Netlify ou Vercel.
+## Estrutura funcional
+
+O ecossistema contempla:
+
+- Direção & Governança
+- Sistema de Gestão / SGQ Digital
+- Engenharia de Produtos
+- Engenharia de Processos
+- PPCP + MRP + OPs/OFs
+- Suprimentos
+- Logística
+- Produção
+- Recursos Humanos
+- Segurança do Trabalho
+- Manutenção Industrial
+- Ferramentaria
+- Comercial & CRM
+- Financeiro & Controladoria
+- BI & Relatórios
+- Central de IA com agentes especializados
+
+## Diretrizes de produto
+
+- A marca é **Amico Consultyng**; evita-se repetir “Amico” antes dos nomes dos módulos.
+- O sistema deve operar como **plataforma modular integrada**, não como páginas independentes.
+- Recursos críticos devem utilizar multitenancy, autenticação, RBAC, segregação de dados e trilha de auditoria.
+- Todos os módulos devem possuir relatórios em tela e exportação PDF/Excel, conforme permissão.
+- IA e automações devem respeitar permissões, contexto da empresa, logs e aprovações humanas configuráveis.
+- OPs e OFs pertencem ao PPCP e integram Produção, Engenharia, Suprimentos e Logística.
+- O MRP deve ser executável sob demanda e programável; referência padrão: três ciclos diários.
+
+## Estados de evolução
+
+Cada recurso deve ser identificado como:
+
+- **Publicado**
+- **Em homologação**
+- **Em desenvolvimento**
+- **Planejado**
+
+Recursos planejados não devem ser apresentados como funcionalidades já operacionais.
+
+## Estrutura publicada atualmente
+
+O repositório contém o site institucional em `index.html`, com apresentação do SGQ Digital, OS SaaS, Central IA, BI/Relatórios, módulos corporativos, implantação e roadmap.
 
 ## Segurança de publicação
 
-O repositório público não deve conter:
+Este repositório público não deve conter:
 
-- dados ou identidade visual da FOCA;
+- dados ou identidade visual de clientes sem autorização;
 - documentos internos ou confidenciais;
-- códigos-fonte privados de produtos SaaS;
-- arquivos `.env`, tokens ou chaves de acesso;
+- código privado de produtos SaaS;
+- arquivos `.env`, tokens ou chaves;
 - contratos editáveis ou planejamento financeiro interno.
 
-## Arquivo principal
+## Arquivo principal do site
 
 `index.html`
