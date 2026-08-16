@@ -1,0 +1,21 @@
+{
+  "name": "AMICO Consultyng",
+  "short_name": "AMICO",
+  "description": "Acesso móvel ao Ecossistema AMICO — OS, SGQ Digital, CEO e BI.",
+  "id": "/Amico_Consultyng/app/",
+  "start_url": "/Amico_Consultyng/app/",
+  "scope": "/Amico_Consultyng/app/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
