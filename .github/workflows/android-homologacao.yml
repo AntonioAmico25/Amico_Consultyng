@@ -7,6 +7,12 @@ on:
     paths:
       - "android/**"
       - ".github/workflows/android-homologacao.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "android/**"
+      - ".github/workflows/android-homologacao.yml"
   workflow_dispatch:
 
 permissions:
@@ -54,8 +60,9 @@ jobs:
           if-no-files-found: error
 
       - name: Publicar pre-release para download
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete android-v0.1.0-homolog --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
-          gh release create android-v0.1.0-homolog             AMICO-Consultyng-v0.1.0-homolog.apk             AMICO-Consultyng-v0.1.0-homolog.apk.sha256             --repo "$GITHUB_REPOSITORY"             --target "$GITHUB_SHA"             --prerelease             --title "AMICO Consultyng Android v0.1.0 — Homologação"             --notes "APK Android para testes do Ecossistema AMICO CONSULTYNG. Esta é uma pré-versão de homologação, não uma publicação definitiva da Google Play."
+          gh release create android-v0.1.0-homolog AMICO-Consultyng-v0.1.0-homolog.apk AMICO-Consultyng-v0.1.0-homolog.apk.sha256 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title "AMICO Consultyng Android v0.1.0 — Homologação" --notes "APK Android para testes do Ecossistema AMICO CONSULTYNG. Esta é uma pré-versão de homologação, não uma publicação definitiva da Google Play."
