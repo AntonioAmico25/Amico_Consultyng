@@ -11,6 +11,14 @@ Documentação oficial da arquitetura:
 - [`docs/AMICO_CORE_ARQUITETURA.md`](docs/AMICO_CORE_ARQUITETURA.md) — arquitetura mestre, módulos, agentes, regras e prioridades técnicas.
 - [`config/amico-core.json`](config/amico-core.json) — manifesto estruturado de capacidades para evolução técnica e integrações.
 
+## SGI Integrado
+
+O **SGI Integrado** consolida manual, diagnóstico, evidências, riscos, plano de ação, auditoria, análise crítica, gestão de IA e privacidade como capacidade transversal vinculada ao SGQ Digital.
+
+- [`docs/AMICO_SGI_ARQUITETURA.md`](docs/AMICO_SGI_ARQUITETURA.md) — fluxo, bounded contexts, controles e critérios de homologação.
+- [`config/amico-sgi.schema.json`](config/amico-sgi.schema.json) — contrato mínimo para avaliações e itens de diagnóstico.
+- Estado inicial: **fundação funcional para desenvolvimento e homologação**.
+
 ## Estrutura funcional
 
 O ecossistema contempla:
