@@ -51,7 +51,7 @@ jobs:
         working-directory: backend
     env:
       AMICO_OPENAI_API_KEY: ${{ secrets.AMICO_OPENAI_API_KEY }}
-      AMICO_F41_MODEL: ${{ vars.AMICO_F41_MODEL }}
+      AMICO_F41_MODEL: ${{ vars.AMICO_F41_MODEL || 'gpt-5.6-luna' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -59,17 +59,14 @@ jobs:
           python-version: '3.12'
       - name: Install
         run: python -m pip install -e '.[dev]'
-      - name: Validate RC secrets
+      - name: Validate RC configuration
         shell: bash
         run: |
           if [ -z "$AMICO_OPENAI_API_KEY" ]; then
             echo "AMICO_OPENAI_API_KEY ausente no environment f41-rc."
             exit 10
           fi
-          if [ -z "$AMICO_F41_MODEL" ]; then
-            echo "AMICO_F41_MODEL ausente no environment f41-rc."
-            exit 11
-          fi
-          echo "Credencial e modelo do RC presentes; valores secretos não serão exibidos."
+          echo "Credencial RC presente; segredo não será exibido."
+          echo "Modelo F4.1 selecionado: $AMICO_F41_MODEL"
       - name: Real provider homologation
         run: python scripts/run_f41.py --provider openai --model "$AMICO_F41_MODEL" --out f41_openai_report.json
