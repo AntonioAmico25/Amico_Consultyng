@@ -42,7 +42,7 @@ jobs:
         run: python scripts/run_f41.py --provider deterministic --model offline-f41 --out f41_report.json
 
   f41-rc-real:
-    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.run_real == true) || (github.event_name == 'pull_request' && github.head_ref == 'audit/f41-post-merge-correction') }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_real == true }}
     needs: f41-offline
     runs-on: ubuntu-latest
     environment: f41-rc
