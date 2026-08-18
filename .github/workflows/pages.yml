@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  statuses: write
 
 concurrency:
   group: "pages"
@@ -22,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validar arquivos obrigatórios
+      - name: Validar arquivos obrigatorios
         shell: bash
         run: |
           set -euo pipefail
@@ -81,6 +82,7 @@ jobs:
       PAGE_URL: ${{ needs.deploy.outputs.page_url }}
     steps:
       - name: Validar SGQ Manager publicado
+        id: smoke
         shell: bash
         run: |
           set -euo pipefail
@@ -97,3 +99,33 @@ jobs:
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
           grep -q "$GITHUB_SHA" /tmp/release.json
           echo "Smoke test aprovado: $BASE/sgq-manager-foca/"
+
+      - name: Publicar status verde
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'success',
+              context: 'pages/smoke-test',
+              description: 'SGQ Manager publicado e validado',
+              target_url: process.env.PAGE_URL
+            })
+
+      - name: Publicar status vermelho
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: 'failure',
+              context: 'pages/smoke-test',
+              description: 'Falha na validacao da publicacao',
+              target_url: process.env.PAGE_URL
+            })
