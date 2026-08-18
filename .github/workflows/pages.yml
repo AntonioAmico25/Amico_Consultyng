@@ -15,20 +15,57 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate:
+    name: Validar pacote web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validar arquivos obrigatórios
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f sgq-manager-foca/index.html
+          test -f sgq-manager-foca/app.js
+          test -f sgq-manager-foca/recovery.js
+          test -f sgq-manager-foca/patch-r6.js
+          test -f sgq-manager-foca/styles.css
+
+      - name: Montar pacote publico
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/sgq-manager-foca
+          cp index.html _site/index.html
+          cp sgq-manager-foca/index.html _site/sgq-manager-foca/index.html
+          cp sgq-manager-foca/app.js _site/sgq-manager-foca/app.js
+          cp sgq-manager-foca/recovery.js _site/sgq-manager-foca/recovery.js
+          cp sgq-manager-foca/patch-r6.js _site/sgq-manager-foca/patch-r6.js
+          cp sgq-manager-foca/styles.css _site/sgq-manager-foca/styles.css
+          touch _site/.nojekyll
+
+      - name: Upload pacote web
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
   deploy:
+    name: Publicar GitHub Pages
+    needs: validate
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Registrar URL publicada
+        run: echo "Publicado em ${{ steps.deployment.outputs.page_url }}"
