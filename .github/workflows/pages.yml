@@ -34,6 +34,29 @@ jobs:
           test -f sgq-manager-foca/patch-r6.js
           test -f sgq-manager-foca/styles.css
 
+      - name: Validar estrutura aprovada do SGQ Manager
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="sgq-manager-foca/index.html"
+          grep -q "Visão executiva" "$FILE"
+          grep -q "Governança do Escopo" "$FILE"
+          grep -q "Estratégia e contexto" "$FILE"
+          grep -q "Processos e riscos" "$FILE"
+          grep -q "Documentos e registros" "$FILE"
+          grep -q "Indicadores" "$FILE"
+          grep -q "Auditorias" "$FILE"
+          grep -q "RQ 045 e planos" "$FILE"
+          grep -q "Encarroçadoras e laboratórios" "$FILE"
+          grep -q "Certificações" "$FILE"
+          grep -q "APQP · PPAP · FMEA" "$FILE"
+          grep -q "Metrologia e 5S" "$FILE"
+          grep -q "Ações e melhorias" "$FILE"
+          grep -q "Garantias e pós-vendas" "$FILE"
+          grep -q "Usuários, LGPD e trilha" "$FILE"
+          grep -q "Aplicativo e dispositivos" "$FILE"
+          test "$(grep -o 'class=\"navitem' "$FILE" | wc -l)" -eq 16
+
       - name: Montar pacote publico
         shell: bash
         run: |
@@ -97,6 +120,10 @@ jobs:
           test -s /tmp/sgq.html
           test -s /tmp/release.json
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
+          grep -q "Visão executiva" /tmp/sgq.html
+          grep -q "Governança do Escopo" /tmp/sgq.html
+          grep -q "Aplicativo e dispositivos" /tmp/sgq.html
+          test "$(grep -o 'class=\"navitem' /tmp/sgq.html | wc -l)" -eq 16
           grep -q "$GITHUB_SHA" /tmp/release.json
           echo "Smoke test aprovado: $BASE/sgq-manager-foca/"
 
