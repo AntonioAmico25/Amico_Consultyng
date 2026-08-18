@@ -35,12 +35,13 @@ jobs:
           test -f sgq-manager-foca/patch-r6.js
           test -f sgq-manager-foca/styles.css
 
-      - name: Validar estrutura aprovada do SGQ Manager
+      - name: Validar estrutura modular do SGQ Manager
         shell: bash
         run: |
           set -euo pipefail
           FILE="sgq-manager-foca/index.html"
           NAV="sgq-manager-foca/navigation.js"
+          APP="sgq-manager-foca/app.js"
           grep -q "Visão executiva" "$FILE"
           grep -q "Governança do Escopo" "$FILE"
           grep -q "Estratégia e contexto" "$FILE"
@@ -58,16 +59,18 @@ jobs:
           grep -q "Usuários, LGPD e trilha" "$FILE"
           grep -q "Aplicativo e dispositivos" "$FILE"
           test "$(grep -o 'data-target=\"m[0-9][0-9]\"' "$FILE" | wc -l)" -eq 16
-          grep -q "Controles integrados" "$NAV"
-          grep -q "Planilhas" "$NAV"
-          grep -q "Alertas" "$NAV"
-          grep -q "Agenda SGQ" "$NAV"
-          grep -q "Histórico / Audit Log" "$NAV"
-          grep -q "Importar RQs" "$NAV"
-          grep -q "Portais" "$NAV"
-          grep -q "Central de Agentes IA" "$NAV"
-          grep -q "Usuários e Acessos" "$NAV"
-          grep -q "Configurações" "$NAV"
+          grep -q "m17','Controles integrados" "$NAV"
+          grep -q "m18','Planilhas" "$NAV"
+          grep -q "m19','Alertas" "$NAV"
+          grep -q "m20','Agenda SGQ" "$NAV"
+          grep -q "m21','Histórico / Audit Log" "$NAV"
+          grep -q "m22','Importar RQs" "$NAV"
+          grep -q "m23','Portais" "$NAV"
+          grep -q "m24','Central de Agentes IA" "$NAV"
+          grep -q "m25','Administração" "$NAV"
+          grep -q "m26','Configurações" "$NAV"
+          grep -q "sgqOpenDocument" "$NAV"
+          grep -q "navigation.js?v=20260818-r10" "$APP"
 
       - name: Montar pacote publico
         shell: bash
@@ -82,7 +85,6 @@ jobs:
           cp sgq-manager-foca/recovery.js _site/sgq-manager-foca/recovery.js
           cp sgq-manager-foca/patch-r6.js _site/sgq-manager-foca/patch-r6.js
           cp sgq-manager-foca/styles.css _site/sgq-manager-foca/styles.css
-          sed -i 's#</body>#<script src="navigation.js?v=20260818-r9"></script></body>#' _site/sgq-manager-foca/index.html
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
@@ -103,11 +105,9 @@ jobs:
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v5
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
       - name: Registrar URL publicada
         run: echo "Publicado em ${{ steps.deployment.outputs.page_url }}"
 
@@ -126,6 +126,7 @@ jobs:
           BASE="${PAGE_URL%/}"
           for i in {1..12}; do
             if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && \
+               curl -fsS "$BASE/sgq-manager-foca/app.js" -o /tmp/app.js && \
                curl -fsS "$BASE/sgq-manager-foca/navigation.js" -o /tmp/navigation.js && \
                curl -fsS "$BASE/release.json" -o /tmp/release.json; then
               break
@@ -133,15 +134,13 @@ jobs:
             sleep 5
           done
           test -s /tmp/sgq.html
+          test -s /tmp/app.js
           test -s /tmp/navigation.js
           test -s /tmp/release.json
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
-          grep -q "Visão executiva" /tmp/sgq.html
-          grep -q "Aplicativo e dispositivos" /tmp/sgq.html
-          grep -q "Controles integrados" /tmp/navigation.js
-          grep -q "Agenda SGQ" /tmp/navigation.js
-          grep -q "Importar RQs" /tmp/navigation.js
-          grep -q "Central de Agentes IA" /tmp/navigation.js
+          grep -q "m26','Configurações" /tmp/navigation.js
+          grep -q "sgqOpenDocument" /tmp/navigation.js
+          grep -q "navigation.js?v=20260818-r10" /tmp/app.js
           grep -q "$GITHUB_SHA" /tmp/release.json
           echo "Smoke test aprovado: $BASE/sgq-manager-foca/"
 
@@ -150,27 +149,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha,
-              state: 'success',
-              context: 'pages/smoke-test',
-              description: 'SGQ Manager publicado e validado',
-              target_url: process.env.PAGE_URL
-            })
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state: 'success',context: 'pages/smoke-test',description: 'SGQ Manager publicado e validado',target_url: process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.sha,
-              state: 'failure',
-              context: 'pages/smoke-test',
-              description: 'Falha na validacao da publicacao',
-              target_url: process.env.PAGE_URL
-            })
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state: 'failure',context: 'pages/smoke-test',description: 'Falha na validacao da publicacao',target_url: process.env.PAGE_URL})
