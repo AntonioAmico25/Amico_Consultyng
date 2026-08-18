@@ -15,14 +15,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install backend
+      - name: Install backend and CI test dependencies
         working-directory: backend
         run: |
           python -m pip install --upgrade pip
           pip install -e .
+          python -m pip install pytest
       - name: Test F4.1
         working-directory: backend
-        run: pytest -q
+        run: python -m pytest -q
       - name: Offline homologation dataset
         working-directory: backend
         run: python scripts/run_f41.py
