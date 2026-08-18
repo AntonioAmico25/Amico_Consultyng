@@ -35,7 +35,7 @@ jobs:
           test -f sgq-manager-foca/patch-r6.js
           test -f sgq-manager-foca/styles.css
 
-      - name: Validar estrutura modular do SGQ Manager
+      - name: Validar estrutura modular e piramide FOCA
         shell: bash
         run: |
           set -euo pipefail
@@ -60,15 +60,20 @@ jobs:
           grep -q "Aplicativo e dispositivos" "$FILE"
           test "$(grep -o 'data-target=\"m[0-9][0-9]\"' "$FILE" | wc -l)" -eq 16
           grep -q "m17','Controles integrados" "$NAV"
-          grep -q "m18','Planilhas" "$NAV"
-          grep -q "m19','Alertas" "$NAV"
-          grep -q "m20','Agenda SGQ" "$NAV"
-          grep -q "m21','Histórico / Audit Log" "$NAV"
-          grep -q "m22','Importar RQs" "$NAV"
-          grep -q "m23','Portais" "$NAV"
-          grep -q "m24','Central de Agentes IA" "$NAV"
-          grep -q "m25','Administração" "$NAV"
           grep -q "m26','Configurações" "$NAV"
+          grep -q "m27','Manuais" "$NAV"
+          grep -q "m28','Procedimentos" "$NAV"
+          grep -q "m29','Instruções e Documentos Complementares" "$NAV"
+          grep -q "m30','Registros" "$NAV"
+          grep -q "m31','Obsoletos / Histórico de Revisões" "$NAV"
+          grep -q "m32','Indicadores FOCA" "$NAV"
+          grep -q "m33','Planos de Ações" "$NAV"
+          grep -q "m34','Auditorias FOCA" "$NAV"
+          grep -q "m35','Treinamentos" "$NAV"
+          grep -q "m36','Controle de Encarroçadoras" "$NAV"
+          grep -q "m37','Informações Técnicas" "$NAV"
+          grep -q "Pirâmide Documental FOCA" "$NAV"
+          grep -q "Gestão do SGQ FOCA" "$NAV"
           grep -q "sgqOpenDocument" "$NAV"
           grep -q "navigation.js?v=20260818-r10" "$APP"
 
@@ -138,7 +143,11 @@ jobs:
           test -s /tmp/navigation.js
           test -s /tmp/release.json
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
-          grep -q "m26','Configurações" /tmp/navigation.js
+          grep -q "m27','Manuais" /tmp/navigation.js
+          grep -q "m31','Obsoletos / Histórico de Revisões" /tmp/navigation.js
+          grep -q "m35','Treinamentos" /tmp/navigation.js
+          grep -q "m36','Controle de Encarroçadoras" /tmp/navigation.js
+          grep -q "m37','Informações Técnicas" /tmp/navigation.js
           grep -q "sgqOpenDocument" /tmp/navigation.js
           grep -q "navigation.js?v=20260818-r10" /tmp/app.js
           grep -q "$GITHUB_SHA" /tmp/release.json
