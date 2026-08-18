@@ -5,7 +5,9 @@ on:
     branches: [ main ]
   push:
     branches:
+      - main
       - 'rc/**'
+      - 'audit/**'
 
 jobs:
   rc-consolidado:
@@ -32,3 +34,4 @@ jobs:
           test -f docs/RC_MANIFEST.md
           test -f docs/WEB_SHELL_CORPORATIVO_BASELINE.md
           test -f backend/F4_1_RELATORIO_GO_NO_GO.md
+          test -f docs/SGQ_MANAGER_RELEASE_2026-08-18.md
