@@ -45,6 +45,7 @@ jobs:
           cp sgq-manager-foca/recovery.js _site/sgq-manager-foca/recovery.js
           cp sgq-manager-foca/patch-r6.js _site/sgq-manager-foca/patch-r6.js
           cp sgq-manager-foca/styles.css _site/sgq-manager-foca/styles.css
+          printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
       - name: Upload pacote web
@@ -59,6 +60,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -69,3 +72,28 @@ jobs:
 
       - name: Registrar URL publicada
         run: echo "Publicado em ${{ steps.deployment.outputs.page_url }}"
+
+  verify:
+    name: Verificar publicacao
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+    steps:
+      - name: Validar SGQ Manager publicado
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${PAGE_URL%/}"
+          for i in {1..12}; do
+            if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && \
+               curl -fsS "$BASE/release.json" -o /tmp/release.json; then
+              break
+            fi
+            sleep 5
+          done
+          test -s /tmp/sgq.html
+          test -s /tmp/release.json
+          grep -q "SGQ Manager FOCA" /tmp/sgq.html
+          grep -q "$GITHUB_SHA" /tmp/release.json
+          echo "Smoke test aprovado: $BASE/sgq-manager-foca/"
