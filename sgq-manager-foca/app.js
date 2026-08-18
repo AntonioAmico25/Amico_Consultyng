@@ -1,3 +1,4 @@
+const NAV=document.createElement('script');NAV.src='navigation.js?v=20260818-r10';document.head.appendChild(NAV);
 const U='https://jldmisisyqewmzqhcdob.supabase.co',K='sb_publishable__FKm_nNVYKJPRTlg-l84Kw_O9Izh8eI';
 const sb=supabase.createClient(U,K,{auth:{persistSession:true,autoRefreshToken:true}}),$=id=>document.getElementById(id);let ctx=null,modsCache=[];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
