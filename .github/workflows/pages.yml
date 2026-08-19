@@ -22,82 +22,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Validar arquivos obrigatorios
         shell: bash
         run: |
           set -euo pipefail
-          test -f index.html
-          test -f sgq-manager-foca/index.html
-          test -f sgq-manager-foca/app.js
-          test -f sgq-manager-foca/navigation.js
-          test -f sgq-manager-foca/recovery.js
-          test -f sgq-manager-foca/patch-r6.js
-          test -f sgq-manager-foca/styles.css
-
-      - name: Validar estrutura modular e piramide FOCA
+          for f in index.html sgq-manager-foca/index.html sgq-manager-foca/app.js sgq-manager-foca/navigation.js sgq-manager-foca/recovery.js sgq-manager-foca/patch-r6.js sgq-manager-foca/styles.css; do test -f "$f"; done
+      - name: Validar estrutura integral SGQ FOCA
         shell: bash
         run: |
           set -euo pipefail
-          FILE="sgq-manager-foca/index.html"
-          NAV="sgq-manager-foca/navigation.js"
-          APP="sgq-manager-foca/app.js"
-          grep -q "Visão executiva" "$FILE"
-          grep -q "Governança do Escopo" "$FILE"
-          grep -q "Estratégia e contexto" "$FILE"
-          grep -q "Processos e riscos" "$FILE"
-          grep -q "Documentos e registros" "$FILE"
-          grep -q "Indicadores" "$FILE"
-          grep -q "Auditorias" "$FILE"
-          grep -q "RQ 045 e planos" "$FILE"
-          grep -q "Encarroçadoras e laboratórios" "$FILE"
-          grep -q "Certificações" "$FILE"
-          grep -q "APQP · PPAP · FMEA" "$FILE"
-          grep -q "Metrologia e 5S" "$FILE"
-          grep -q "Ações e melhorias" "$FILE"
-          grep -q "Garantias e pós-vendas" "$FILE"
-          grep -q "Usuários, LGPD e trilha" "$FILE"
-          grep -q "Aplicativo e dispositivos" "$FILE"
+          FILE="sgq-manager-foca/index.html"; NAV="sgq-manager-foca/navigation.js"; APP="sgq-manager-foca/app.js"
+          for label in "Visão executiva" "Governança do Escopo" "Estratégia e contexto" "Processos e riscos" "Documentos e registros" "Indicadores" "Auditorias" "RQ 045 e planos" "Encarroçadoras e laboratórios" "Certificações" "APQP · PPAP · FMEA" "Metrologia e 5S" "Ações e melhorias" "Garantias e pós-vendas" "Usuários, LGPD e trilha" "Aplicativo e dispositivos"; do grep -q "$label" "$FILE"; done
           test "$(grep -o 'data-target=\"m[0-9][0-9]\"' "$FILE" | wc -l)" -eq 16
-          grep -q "m17','Controles integrados" "$NAV"
-          grep -q "m26','Configurações" "$NAV"
-          grep -q "m27','Manuais" "$NAV"
-          grep -q "m28','Procedimentos" "$NAV"
-          grep -q "m29','Instruções e Documentos Complementares" "$NAV"
-          grep -q "m30','Registros" "$NAV"
-          grep -q "m31','Obsoletos / Histórico de Revisões" "$NAV"
-          grep -q "m32','Indicadores FOCA" "$NAV"
-          grep -q "m33','Planos de Ações" "$NAV"
-          grep -q "m34','Auditorias FOCA" "$NAV"
-          grep -q "m35','Treinamentos" "$NAV"
-          grep -q "m36','Controle de Encarroçadoras" "$NAV"
-          grep -q "m37','Informações Técnicas" "$NAV"
+          for label in "m17','Controles integrados" "m18','Planilhas" "m19','Alertas" "m20','Agenda SGQ" "m21','Histórico / Audit Log" "m22','Importar RQs" "m23','Portais" "m24','Central de Agentes IA" "m25','Administração" "m26','Configurações" "m27','Manuais" "m28','Procedimentos" "m29','Instruções e Documentos Complementares" "m30','Registros" "m31','Obsoletos / Histórico de Revisões" "m32','Indicadores FOCA" "m33','Planos de Ações" "m34','Auditorias FOCA" "m35','Treinamentos" "m36','Controle de Encarroçadoras" "m37','Informações Técnicas"; do grep -q "$label" "$NAV"; done
           grep -q "Pirâmide Documental FOCA" "$NAV"
           grep -q "Gestão do SGQ FOCA" "$NAV"
           grep -q "sgqOpenDocument" "$NAV"
+          grep -q "Nenhum link fictício" "$NAV"
           grep -q "navigation.js?v=20260818-r10" "$APP"
-
       - name: Montar pacote publico
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf _site
-          mkdir -p _site/sgq-manager-foca
+          rm -rf _site; mkdir -p _site/sgq-manager-foca
           cp index.html _site/index.html
-          cp sgq-manager-foca/index.html _site/sgq-manager-foca/index.html
-          cp sgq-manager-foca/app.js _site/sgq-manager-foca/app.js
-          cp sgq-manager-foca/navigation.js _site/sgq-manager-foca/navigation.js
-          cp sgq-manager-foca/recovery.js _site/sgq-manager-foca/recovery.js
-          cp sgq-manager-foca/patch-r6.js _site/sgq-manager-foca/patch-r6.js
-          cp sgq-manager-foca/styles.css _site/sgq-manager-foca/styles.css
+          cp sgq-manager-foca/{index.html,app.js,navigation.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
-
       - name: Upload pacote web
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
-
   deploy:
     name: Publicar GitHub Pages
     needs: validate
@@ -108,14 +63,9 @@ jobs:
     outputs:
       page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - uses: actions/configure-pages@v5
+      - id: deployment
         uses: actions/deploy-pages@v4
-      - name: Registrar URL publicada
-        run: echo "Publicado em ${{ steps.deployment.outputs.page_url }}"
-
   verify:
     name: Verificar publicacao
     needs: deploy
@@ -123,46 +73,30 @@ jobs:
     env:
       PAGE_URL: ${{ needs.deploy.outputs.page_url }}
     steps:
-      - name: Validar SGQ Manager publicado
-        id: smoke
+      - name: Smoke test SGQ Manager publicado
         shell: bash
         run: |
           set -euo pipefail
           BASE="${PAGE_URL%/}"
           for i in {1..12}; do
-            if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && \
-               curl -fsS "$BASE/sgq-manager-foca/app.js" -o /tmp/app.js && \
-               curl -fsS "$BASE/sgq-manager-foca/navigation.js" -o /tmp/navigation.js && \
-               curl -fsS "$BASE/release.json" -o /tmp/release.json; then
-              break
-            fi
+            if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && curl -fsS "$BASE/sgq-manager-foca/app.js" -o /tmp/app.js && curl -fsS "$BASE/sgq-manager-foca/navigation.js" -o /tmp/navigation.js && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          test -s /tmp/sgq.html
-          test -s /tmp/app.js
-          test -s /tmp/navigation.js
-          test -s /tmp/release.json
+          test -s /tmp/sgq.html; test -s /tmp/app.js; test -s /tmp/navigation.js; test -s /tmp/release.json
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
-          grep -q "m27','Manuais" /tmp/navigation.js
-          grep -q "m31','Obsoletos / Histórico de Revisões" /tmp/navigation.js
-          grep -q "m35','Treinamentos" /tmp/navigation.js
-          grep -q "m36','Controle de Encarroçadoras" /tmp/navigation.js
-          grep -q "m37','Informações Técnicas" /tmp/navigation.js
-          grep -q "sgqOpenDocument" /tmp/navigation.js
+          for label in "m17','Controles integrados" "m18','Planilhas" "m19','Alertas" "m20','Agenda SGQ" "m21','Histórico / Audit Log" "m22','Importar RQs" "m23','Portais" "m24','Central de Agentes IA" "m25','Administração" "m26','Configurações" "m27','Manuais" "m28','Procedimentos" "m29','Instruções e Documentos Complementares" "m30','Registros" "m31','Obsoletos / Histórico de Revisões" "m32','Indicadores FOCA" "m33','Planos de Ações" "m34','Auditorias FOCA" "m35','Treinamentos" "m36','Controle de Encarroçadoras" "m37','Informações Técnicas"; do grep -q "$label" /tmp/navigation.js; done
+          grep -q "Nenhum link fictício" /tmp/navigation.js
           grep -q "navigation.js?v=20260818-r10" /tmp/app.js
           grep -q "$GITHUB_SHA" /tmp/release.json
-          echo "Smoke test aprovado: $BASE/sgq-manager-foca/"
-
       - name: Publicar status verde
         if: success()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state: 'success',context: 'pages/smoke-test',description: 'SGQ Manager publicado e validado',target_url: process.env.PAGE_URL})
-
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Manager publicado e validado',target_url:process.env.PAGE_URL})
       - name: Publicar status vermelho
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state: 'failure',context: 'pages/smoke-test',description: 'Falha na validacao da publicacao',target_url: process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state:'failure',context:'pages/smoke-test',description:'Falha na validacao da publicacao',target_url:process.env.PAGE_URL})
