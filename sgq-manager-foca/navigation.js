@@ -1,138 +1,20 @@
 (()=>{
   const q=(s,r=document)=>r.querySelector(s), qa=(s,r=document)=>[...r.querySelectorAll(s)];
-  const core={
-    m01:'Visão executiva',m02:'Governança do Escopo',m03:'Estratégia e contexto',m04:'Processos e riscos',m05:'Documentos e registros',m06:'Indicadores',m07:'Auditorias',m08:'RQ 045 e planos',m09:'Encarroçadoras e laboratórios',m10:'Certificações',m11:'APQP · PPAP · FMEA',m12:'Metrologia e 5S',m13:'Ações e melhorias',m14:'Garantias e pós-vendas',m15:'Usuários, LGPD e trilha',m16:'Aplicativo e dispositivos'
-  };
+  const core={m01:'Visão executiva',m02:'Governança do Escopo',m03:'Estratégia e contexto',m04:'Processos e riscos',m05:'Documentos e registros',m06:'Indicadores',m07:'Auditorias',m08:'RQ 045 e planos',m09:'Encarroçadoras e laboratórios',m10:'Certificações',m11:'APQP · PPAP · FMEA',m12:'Metrologia e 5S',m13:'Ações e melhorias',m14:'Garantias e pós-vendas',m15:'Usuários, LGPD e trilha',m16:'Aplicativo e dispositivos'};
   const extra=[
-    ['m17','Controles integrados','Visão transversal de documentos, indicadores, auditorias, ações, riscos, alertas e agenda.','Complementares'],
-    ['m18','Planilhas','Central de planilhas do SGQ, importação, exportação e produtos automatizados por módulo.','Complementares'],
-    ['m19','Alertas','Alertas abertos, criticidade, origem, prazo, responsável e escalonamento.','Complementares'],
-    ['m20','Agenda SGQ','Agenda diária, semanal, mensal, periódica, auditorias, certificações, calibrações e revisões.','Complementares'],
-    ['m21','Histórico / Audit Log','Rastreabilidade de acessos, alterações, aprovações, revisões, automações e decisões.','Complementares'],
-    ['m22','Importar RQs','Entrada controlada de RQs, validação, mapeamento de campos e registro da origem.','Complementares'],
-    ['m23','Portais','INMETRO, Cgcre, IMDS, NEWPROD, MES e demais sistemas externos.','Complementares'],
-    ['m24','Central de Agentes IA','Agentes supervisionados por módulo, fontes governadas, RBAC/RLS e human-in-the-loop.','Complementares'],
-    ['m25','Administração','Usuários, acessos exclusivos, cadastros, permissões e governança administrativa.','Complementares'],
-    ['m26','Configurações','Parâmetros do tenant, módulos, automações, frequências, integrações e regras.','Complementares'],
-    ['m27','Manuais','Nível superior da pirâmide documental FOCA: manuais do sistema de gestão, escopo, diretrizes, responsabilidades e referências.','Pirâmide Documental FOCA'],
-    ['m28','Procedimentos','Procedimentos do SGQ FOCA, com revisão, aprovação, vigência, responsáveis, distribuição e vínculo aos processos.','Pirâmide Documental FOCA'],
-    ['m29','Instruções e Documentos Complementares','Instruções de Trabalho e Documentos Complementares aplicáveis aos processos, produtos, controles e atividades operacionais.','Pirâmide Documental FOCA'],
-    ['m30','Registros','Registros e formulários do SGQ FOCA, incluindo RQs, evidências, resultados, preenchimentos, rastreabilidade e retenção.','Pirâmide Documental FOCA'],
-    ['m31','Obsoletos / Histórico de Revisões','Documentos substituídos e revisões anteriores preservados como histórico controlado, sem uso operacional indevido.','Pirâmide Documental FOCA'],
-    ['m32','Indicadores FOCA','Indicadores do SGQ, metas, resultados, tendências, análises, responsáveis, frequência e decisões.','Gestão do SGQ FOCA'],
-    ['m33','Planos de Ações','Planos de ação, RQ 045, contenção, causa, ações, prazos, responsáveis, evidências e eficácia.','Gestão do SGQ FOCA'],
-    ['m34','Auditorias FOCA','Auditorias internas, externas, fornecedores e 5S, com programa, escopo, critérios, constatações, evidências e follow-up.','Gestão do SGQ FOCA'],
-    ['m35','Treinamentos','Treinamentos vinculados a documentos, funções, competências, validade, presença, evidências e reciclagens.','Gestão do SGQ FOCA'],
-    ['m36','Controle de Encarroçadoras','Controle das encarroçadoras, selos, instalações, verificações, preventivas, treinamentos, pendências e evidências.','Gestão do SGQ FOCA'],
-    ['m37','Informações Técnicas','Informações técnicas de produtos e processos, desenhos, especificações, boletins, requisitos, certificados, ensaios e referências aplicáveis.','Gestão do SGQ FOCA']
+    ['m17','Controles integrados','Visão transversal de documentos, indicadores, auditorias, ações, riscos, alertas e agenda.','Complementares'],['m18','Planilhas','Central de planilhas do SGQ, importação, exportação e produtos automatizados por módulo.','Complementares'],['m19','Alertas','Alertas abertos, criticidade, origem, prazo, responsável e escalonamento.','Complementares'],['m20','Agenda SGQ','Agenda diária, semanal, mensal, periódica, auditorias, certificações, calibrações e revisões.','Complementares'],['m21','Histórico / Audit Log','Rastreabilidade de acessos, alterações, aprovações, revisões, automações e decisões.','Complementares'],['m22','Importar RQs','Entrada controlada de RQs, validação, mapeamento de campos e registro da origem.','Complementares'],['m23','Portais','INMETRO, Cgcre, IMDS, NEWPROD, MES e demais sistemas externos.','Complementares'],['m24','Central de Agentes IA','Agentes supervisionados por módulo, fontes governadas, RBAC/RLS e human-in-the-loop.','Complementares'],['m25','Administração','Usuários, acessos exclusivos, cadastros, permissões e governança administrativa.','Complementares'],['m26','Configurações','Parâmetros do tenant, módulos, automações, frequências, integrações e regras.','Complementares'],
+    ['m27','Manuais','Nível superior da pirâmide documental FOCA: manuais do sistema de gestão, escopo, diretrizes, responsabilidades e referências.','Pirâmide Documental FOCA'],['m28','Procedimentos','Procedimentos do SGQ FOCA, com revisão, aprovação, vigência, responsáveis, distribuição e vínculo aos processos.','Pirâmide Documental FOCA'],['m29','Instruções e Documentos Complementares','Instruções de Trabalho e Documentos Complementares aplicáveis aos processos, produtos, controles e atividades operacionais.','Pirâmide Documental FOCA'],['m30','Registros','Registros e formulários do SGQ FOCA, incluindo RQs, evidências, resultados, preenchimentos, rastreabilidade e retenção.','Pirâmide Documental FOCA'],['m31','Obsoletos / Histórico de Revisões','Documentos substituídos e revisões anteriores preservados como histórico controlado, sem uso operacional indevido.','Pirâmide Documental FOCA'],
+    ['m32','Indicadores FOCA','Indicadores do SGQ, metas, resultados, tendências, análises, responsáveis, frequência e decisões.','Gestão do SGQ FOCA'],['m33','Planos de Ações','Planos de ação, RQ 045, contenção, causa, ações, prazos, responsáveis, evidências e eficácia.','Gestão do SGQ FOCA'],['m34','Auditorias FOCA','Auditorias internas, externas, fornecedores e 5S, com programa, escopo, critérios, constatações, evidências e follow-up.','Gestão do SGQ FOCA'],['m35','Treinamentos','Treinamentos vinculados a documentos, funções, competências, validade, presença, evidências e reciclagens.','Gestão do SGQ FOCA'],['m36','Controle de Encarroçadoras','Controle das encarroçadoras, selos, instalações, verificações, preventivas, treinamentos, pendências e evidências.','Gestão do SGQ FOCA'],['m37','Informações Técnicas','Informações técnicas de produtos e processos, desenhos, especificações, boletins, requisitos, certificados, ensaios e referências aplicáveis.','Gestão do SGQ FOCA']
   ];
   const moduleNames={...core,...Object.fromEntries(extra.map(x=>[x[0],x[1]]))};
-
-  function styles(){
-    const st=document.createElement('style');
-    st.textContent=`
-      .sidebar{width:100%;max-height:calc(100vh - 110px);overflow:auto}
-      .side-group{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
-      .side-group-title{margin:0 8px 8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-      .navitem{white-space:normal;line-height:1.25}
-      #approvedModules{display:block!important}
-      #approvedModules .approved{display:none!important;min-height:calc(100vh - 235px)}
-      #approvedModules .approved.page-active{display:block!important}
-      #modulePage{display:none}.page-active{display:block!important}
-      .module-shell{min-height:calc(100vh - 235px)}
-      .module-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}
-      .module-head h2{margin:0}
-      .doc-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-      .doc-viewer{height:calc(100vh - 310px);min-height:430px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
-      .doc-viewer iframe{width:100%;height:100%;border:0;background:#fff}
-      .doc-empty{display:grid;place-items:center;height:100%;min-height:430px;color:var(--muted);background:var(--card)}
-      .module-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-      .pyramid{display:grid;gap:8px;max-width:900px;margin:18px auto}
-      .pyramid .level{margin:auto;text-align:center;padding:13px 18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(145deg,var(--card2),var(--card))}
-      .pyramid .l1{width:42%}.pyramid .l2{width:58%}.pyramid .l3{width:74%}.pyramid .l4{width:90%}.pyramid .archive{width:100%;border-style:dashed}
-      @media(max-width:1050px){.sidebar{max-height:380px}.doc-viewer{height:65vh}.module-shell{min-height:auto}.pyramid .level{width:100%!important}}
-    `;document.head.appendChild(st);
-  }
-
-  function buildExtraMenu(){
-    const side=q('#approvedMenu');if(!side)return;
-    qa('.extra-modules',side).forEach(x=>x.remove());
-    const groups=[
-      ['Módulos complementares · 17 a 26',extra.filter(x=>x[3]==='Complementares')],
-      ['Pirâmide Documental FOCA · 27 a 31',extra.filter(x=>x[3]==='Pirâmide Documental FOCA')],
-      ['Gestão do SGQ FOCA · 32 a 37',extra.filter(x=>x[3]==='Gestão do SGQ FOCA')]
-    ];
-    groups.forEach(([title,items])=>{
-      const wrap=document.createElement('div');wrap.className='side-group extra-modules';wrap.innerHTML=`<div class="side-group-title">${title}</div>`;
-      items.forEach(([id,name])=>{const b=document.createElement('button');b.className='navitem';b.dataset.target=id;b.textContent=`${id.slice(1)} · ${name}`;wrap.appendChild(b)});
-      side.appendChild(wrap);
-    });
-    const h=side.querySelector('h3');if(h)h.textContent='SGQ Manager · 37 módulos';
-  }
-
-  function buildPages(){
-    const app=q('#appPanel');if(!app)return;
-    let page=q('#modulePage');if(page)page.remove();
-    page=document.createElement('section');page.id='modulePage';page.className='section';
-    page.innerHTML=`<div class="box module-shell"><div class="module-head"><div><span id="moduleNumber" class="tag">MÓDULO</span><h2 id="moduleTitle">Módulo</h2><p id="moduleText" class="muted"></p></div><span id="moduleGroup" class="tag ok">PÁGINA INDIVIDUAL</span></div><div id="moduleBody"></div></div>`;
-    app.prepend(page);
-  }
-
-  function hideAll(){
-    const app=q('#appPanel');if(!app)return;
-    qa(':scope > .section',app).forEach(s=>s.style.display='none');
-    qa('#approvedModules .approved').forEach(x=>x.classList.remove('page-active'));
-  }
-
-  function pyramidBody(id){
-    const common=`<div class="pyramid"><div class="level l1"><b>MANUAIS</b><div class="muted">Nível 1</div></div><div class="level l2"><b>PROCEDIMENTOS</b><div class="muted">Nível 2</div></div><div class="level l3"><b>INSTRUÇÕES + DOCUMENTOS COMPLEMENTARES</b><div class="muted">Nível 3</div></div><div class="level l4"><b>REGISTROS</b><div class="muted">Nível 4</div></div><div class="level archive"><b>OBSOLETOS / HISTÓRICO DE REVISÕES</b><div class="muted">Arquivo controlado</div></div></div>`;
-    return common+`<div class="module-actions"><button class="btn alt" type="button" onclick="sgqOpenDocument('#','${moduleNames[id]}','panel')">Visualizar documento aqui</button><button class="btn alt" type="button" onclick="sgqOpenDocument('#','${moduleNames[id]}','tab')">Abrir documento em nova aba</button></div>`;
-  }
-
-  function sourceBody(id){
-    if(['m27','m28','m29','m30','m31'].includes(id))return pyramidBody(id);
-    if(id==='m19'){const x=q('#alertsList');return `<div class="list"><h3>Alertas abertos</h3>${x?.innerHTML||'<div class="empty">Sem alertas.</div>'}</div>`}
-    if(id==='m20'){const x=q('#agendaList');return `<div class="list"><h3>Agenda próxima</h3>${x?.innerHTML||'<div class="empty">Sem itens.</div>'}</div>`}
-    if(id==='m23'){const x=q('#portalsList');return `<div class="list"><h3>Catálogo de Portais</h3>${x?.innerHTML||'<div class="empty">Sem portais.</div>'}</div>`}
-    if(id==='m25')return '<div class="note">Administração disponível conforme perfil MASTER/SGQ. Os formulários administrativos permanecem protegidos pelas permissões atuais.</div>';
-    if(id==='m32')return '<div class="flow"><span>Metas</span><span>Resultados</span><span>Tendências</span><span>Análise crítica</span><span>Plano quando aplicável</span></div>';
-    if(id==='m33')return '<div class="flow"><span>RQ 045</span><span>Contenção</span><span>Causa raiz</span><span>Ação</span><span>Evidência</span><span>Eficácia</span></div>';
-    if(id==='m34')return '<div class="flow"><span>Internas</span><span>Externas</span><span>Fornecedores</span><span>5S</span><span>Follow-up</span></div>';
-    if(id==='m35')return '<div class="flow"><span>Programação</span><span>Documento associado</span><span>Presença</span><span>Validade</span><span>Reciclagem</span></div>';
-    if(id==='m36')return '<div class="flow"><span>Marcopolo</span><span>CAIO</span><span>Volare</span><span>Mascarello</span><span>Comil</span><span>Busscar</span></div>';
-    if(id==='m37')return '<div class="flow"><span>Desenhos</span><span>Especificações</span><span>Boletins</span><span>Certificados</span><span>Ensaios</span><span>Requisitos técnicos</span></div>';
-    return '<div class="flow"><span>Dados filtrados por perfil</span><span>Rastreabilidade</span><span>Automação transversal</span></div>';
-  }
-
-  function show(id){
-    if(!moduleNames[id])id='m01';
-    qa('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.target===id));
-    hideAll();
-    if(core[id]){
-      const card=q(`#${id}`);if(card){card.classList.add('page-active');const sec=q('#approvedModules')?.closest('.section');if(sec){sec.style.display='block';const h=sec.querySelector('h2');if(h)h.textContent=core[id]}}
-    }else{
-      const p=q('#modulePage');p.style.display='block';p.classList.add('page-active');
-      const row=extra.find(x=>x[0]===id);q('#moduleNumber').textContent=`MÓDULO ${id.slice(1)}`;q('#moduleTitle').textContent=row[1];q('#moduleText').textContent=row[2];q('#moduleGroup').textContent=row[3]||'PÁGINA INDIVIDUAL';q('#moduleBody').innerHTML=sourceBody(id);
-      if(id==='m25'){const admin=q('#adminPanel');if(admin)admin.style.display='block'}
-    }
-    history.replaceState(null,'',`#${id}`);window.scrollTo({top:0,behavior:'auto'});
-  }
-
-  function viewer(){
-    const app=q('#appPanel');if(!app)return;
-    let v=q('#documentViewerPage');if(v)return;
-    v=document.createElement('section');v.id='documentViewerPage';v.className='section';
-    v.innerHTML=`<div class="box module-shell"><div class="module-head"><div><span class="tag">DOCUMENTO</span><h2 id="docTitle">Visualizador</h2><p class="muted">Somente um documento é exibido por vez nesta janela.</p></div><button class="btn alt" id="docClose" type="button">Fechar</button></div><div class="doc-toolbar"><a id="docNewTab" class="btn" target="_blank" rel="noopener">Abrir em nova aba</a></div><div class="doc-viewer" id="docFrameBox"><div class="doc-empty">Selecione um documento para visualizar.</div></div></div>`;
-    app.prepend(v);q('#docClose').onclick=()=>show(location.hash.slice(1).startsWith('m')?location.hash.slice(1):'m05');
-  }
-
-  window.sgqOpenDocument=(url,title='Documento',mode='panel')=>{
-    if(!url||url==='#')return;
-    if(mode==='tab'){window.open(url,'_blank','noopener');return}
-    hideAll();const v=q('#documentViewerPage');v.style.display='block';v.classList.add('page-active');q('#docTitle').textContent=title;q('#docNewTab').href=url;q('#docFrameBox').innerHTML=`<iframe src="${String(url).replace(/"/g,'&quot;')}" title="${String(title).replace(/"/g,'&quot;')}"></iframe>`;
-  };
-
-  function bind(){qa('.navitem[data-target]').forEach(b=>b.onclick=()=>show(b.dataset.target))}
-  function init(){styles();buildExtraMenu();buildPages();viewer();bind();show(moduleNames[location.hash.slice(1)]?location.hash.slice(1):'m01')}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  function styles(){const st=document.createElement('style');st.textContent=`.sidebar{width:100%;max-height:calc(100vh - 110px);overflow:auto}.side-group{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}.side-group-title{margin:0 8px 8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.navitem{white-space:normal;line-height:1.25}#approvedModules{display:block!important}#approvedModules .approved{display:none!important;min-height:calc(100vh - 235px)}#approvedModules .approved.page-active{display:block!important}#modulePage{display:none}.page-active{display:block!important}.module-shell{min-height:calc(100vh - 235px)}.module-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:16px}.module-head h2{margin:0}.doc-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.doc-viewer{height:calc(100vh - 310px);min-height:430px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.doc-viewer iframe{width:100%;height:100%;border:0;background:#fff}.doc-empty{display:grid;place-items:center;height:100%;min-height:430px;color:var(--muted);background:var(--card)}.pyramid{display:grid;gap:8px;max-width:900px;margin:18px auto}.pyramid .level{margin:auto;text-align:center;padding:13px 18px;border:1px solid var(--line);border-radius:10px;background:linear-gradient(145deg,var(--card2),var(--card))}.pyramid .l1{width:42%}.pyramid .l2{width:58%}.pyramid .l3{width:74%}.pyramid .l4{width:90%}.pyramid .archive{width:100%;border-style:dashed}.doc-register{margin-top:18px;padding:14px;border:1px solid var(--line);border-radius:12px}.doc-register h3{margin-top:0}@media(max-width:1050px){.sidebar{max-height:380px}.doc-viewer{height:65vh}.module-shell{min-height:auto}.pyramid .level{width:100%!important}}`;document.head.appendChild(st)}
+  function buildExtraMenu(){const side=q('#approvedMenu');if(!side)return;qa('.extra-modules',side).forEach(x=>x.remove());const groups=[['Módulos complementares · 17 a 26',extra.filter(x=>x[3]==='Complementares')],['Pirâmide Documental FOCA · 27 a 31',extra.filter(x=>x[3]==='Pirâmide Documental FOCA')],['Gestão do SGQ FOCA · 32 a 37',extra.filter(x=>x[3]==='Gestão do SGQ FOCA')]];groups.forEach(([title,items])=>{const wrap=document.createElement('div');wrap.className='side-group extra-modules';wrap.innerHTML=`<div class="side-group-title">${title}</div>`;items.forEach(([id,name])=>{const b=document.createElement('button');b.className='navitem';b.dataset.target=id;b.textContent=`${id.slice(1)} · ${name}`;wrap.appendChild(b)});side.appendChild(wrap)});const h=side.querySelector('h3');if(h)h.textContent='SGQ Manager · 37 módulos'}
+  function buildPages(){const app=q('#appPanel');if(!app)return;let page=q('#modulePage');if(page)page.remove();page=document.createElement('section');page.id='modulePage';page.className='section';page.innerHTML=`<div class="box module-shell"><div class="module-head"><div><span id="moduleNumber" class="tag">MÓDULO</span><h2 id="moduleTitle">Módulo</h2><p id="moduleText" class="muted"></p></div><span id="moduleGroup" class="tag ok">PÁGINA INDIVIDUAL</span></div><div id="moduleBody"></div></div>`;app.prepend(page)}
+  function hideAll(){const app=q('#appPanel');if(!app)return;qa(':scope > .section',app).forEach(s=>s.style.display='none');qa('#approvedModules .approved').forEach(x=>x.classList.remove('page-active'))}
+  function pyramidBody(){return `<div class="pyramid"><div class="level l1"><b>MANUAIS</b><div class="muted">Nível 1</div></div><div class="level l2"><b>PROCEDIMENTOS</b><div class="muted">Nível 2</div></div><div class="level l3"><b>INSTRUÇÕES + DOCUMENTOS COMPLEMENTARES</b><div class="muted">Nível 3</div></div><div class="level l4"><b>REGISTROS</b><div class="muted">Nível 4</div></div><div class="level archive"><b>OBSOLETOS / HISTÓRICO DE REVISÕES</b><div class="muted">Arquivo controlado</div></div></div><div class="doc-register"><h3>Documentos do módulo</h3><p class="muted">Os comandos “Visualizar aqui” e “Abrir em nova aba” serão exibidos somente para documentos efetivamente cadastrados e com URL válida. Nenhum link fictício é apresentado.</p><div class="empty">Aguardando documentos vinculados ao módulo.</div></div>`}
+  function sourceBody(id){if(['m27','m28','m29','m30','m31'].includes(id))return pyramidBody();if(id==='m19'){const x=q('#alertsList');return `<div class="list"><h3>Alertas abertos</h3>${x?.innerHTML||'<div class="empty">Sem alertas.</div>'}</div>`}if(id==='m20'){const x=q('#agendaList');return `<div class="list"><h3>Agenda próxima</h3>${x?.innerHTML||'<div class="empty">Sem itens.</div>'}</div>`}if(id==='m23'){const x=q('#portalsList');return `<div class="list"><h3>Catálogo de Portais</h3>${x?.innerHTML||'<div class="empty">Sem portais.</div>'}</div>`}if(id==='m25')return '<div class="note">Administração disponível conforme perfil MASTER/SGQ. Os formulários administrativos permanecem protegidos pelas permissões atuais.</div>';if(id==='m32')return '<div class="flow"><span>Metas</span><span>Resultados</span><span>Tendências</span><span>Análise crítica</span><span>Plano quando aplicável</span></div>';if(id==='m33')return '<div class="flow"><span>RQ 045</span><span>Contenção</span><span>Causa raiz</span><span>Ação</span><span>Evidência</span><span>Eficácia</span></div>';if(id==='m34')return '<div class="flow"><span>Internas</span><span>Externas</span><span>Fornecedores</span><span>5S</span><span>Follow-up</span></div>';if(id==='m35')return '<div class="flow"><span>Programação</span><span>Documento associado</span><span>Presença</span><span>Validade</span><span>Reciclagem</span></div>';if(id==='m36')return '<div class="flow"><span>Marcopolo</span><span>CAIO</span><span>Volare</span><span>Mascarello</span><span>Comil</span><span>Busscar</span></div>';if(id==='m37')return '<div class="flow"><span>Desenhos</span><span>Especificações</span><span>Boletins</span><span>Certificados</span><span>Ensaios</span><span>Requisitos técnicos</span></div>';return '<div class="flow"><span>Dados filtrados por perfil</span><span>Rastreabilidade</span><span>Automação transversal</span></div>'}
+  function show(id){if(!moduleNames[id])id='m01';qa('.navitem').forEach(b=>b.classList.toggle('active',b.dataset.target===id));hideAll();if(core[id]){const card=q(`#${id}`);if(card){card.classList.add('page-active');const sec=q('#approvedModules')?.closest('.section');if(sec){sec.style.display='block';const h=sec.querySelector('h2');if(h)h.textContent=core[id]}}}else{const p=q('#modulePage');p.style.display='block';p.classList.add('page-active');const row=extra.find(x=>x[0]===id);q('#moduleNumber').textContent=`MÓDULO ${id.slice(1)}`;q('#moduleTitle').textContent=row[1];q('#moduleText').textContent=row[2];q('#moduleGroup').textContent=row[3]||'PÁGINA INDIVIDUAL';q('#moduleBody').innerHTML=sourceBody(id);if(id==='m25'){const admin=q('#adminPanel');if(admin)admin.style.display='block'}}history.replaceState(null,'',`#${id}`);window.scrollTo({top:0,behavior:'auto'})}
+  function viewer(){const app=q('#appPanel');if(!app)return;let v=q('#documentViewerPage');if(v)return;v=document.createElement('section');v.id='documentViewerPage';v.className='section';v.innerHTML=`<div class="box module-shell"><div class="module-head"><div><span class="tag">DOCUMENTO</span><h2 id="docTitle">Visualizador</h2><p class="muted">Somente um documento é exibido por vez nesta janela.</p></div><button class="btn alt" id="docClose" type="button">Fechar</button></div><div class="doc-toolbar"><a id="docNewTab" class="btn" target="_blank" rel="noopener">Abrir em nova aba</a></div><div class="doc-viewer" id="docFrameBox"><div class="doc-empty">Selecione um documento para visualizar.</div></div></div>`;app.prepend(v);q('#docClose').onclick=()=>show(location.hash.slice(1).startsWith('m')?location.hash.slice(1):'m05')}
+  window.sgqOpenDocument=(url,title='Documento',mode='panel')=>{if(!url||url==='#')return;if(mode==='tab'){window.open(url,'_blank','noopener');return}hideAll();const v=q('#documentViewerPage');v.style.display='block';v.classList.add('page-active');q('#docTitle').textContent=title;q('#docNewTab').href=url;q('#docFrameBox').innerHTML=`<iframe src="${String(url).replace(/"/g,'&quot;')}" title="${String(title).replace(/"/g,'&quot;')}"></iframe>`};
+  function bind(){qa('.navitem[data-target]').forEach(b=>b.onclick=()=>show(b.dataset.target))}function init(){styles();buildExtraMenu();buildPages();viewer();bind();show(moduleNames[location.hash.slice(1)]?location.hash.slice(1):'m01')}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
