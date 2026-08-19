@@ -51,7 +51,7 @@ jobs:
         working-directory: backend
     env:
       AMICO_OPENAI_API_KEY: ${{ secrets.AMICO_OPENAI_API_KEY }}
-      AMICO_F41_MODEL: ${{ vars.AMICO_F41_MODEL || 'gpt-5.6-luna' }}
+      AMICO_F41_MODEL: ${{ vars.AMICO_F41_MODEL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,6 +65,14 @@ jobs:
           if [ -z "$AMICO_OPENAI_API_KEY" ]; then
             echo "AMICO_OPENAI_API_KEY ausente no environment f41-rc."
             exit 10
+          fi
+          if [ -z "$AMICO_F41_MODEL" ]; then
+            echo "AMICO_F41_MODEL ausente no environment f41-rc."
+            exit 11
+          fi
+          if [[ ! "$AMICO_F41_MODEL" =~ ^[A-Za-z0-9._:-]+$ ]]; then
+            echo "AMICO_F41_MODEL inválido: informe somente o identificador do modelo, sem espaços, quebras de linha ou texto adicional."
+            exit 12
           fi
           echo "Credencial RC presente; segredo não será exibido."
           echo "Modelo F4.1 selecionado: $AMICO_F41_MODEL"
