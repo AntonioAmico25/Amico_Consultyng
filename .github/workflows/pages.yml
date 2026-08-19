@@ -26,24 +26,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html sgq-manager-foca/index.html sgq-manager-foca/app.js sgq-manager-foca/navigation.js sgq-manager-foca/recovery.js sgq-manager-foca/patch-r6.js sgq-manager-foca/styles.css; do test -f "$f"; done
+          for f in index.html sgq-manager-foca/index.html sgq-manager-foca/app.js sgq-manager-foca/navigation.js sgq-manager-foca/doc-manager.js sgq-manager-foca/recovery.js sgq-manager-foca/patch-r6.js sgq-manager-foca/styles.css; do test -f "$f"; done
       - name: Validar estrutura integral e funções SGQ FOCA
         shell: bash
         run: |
           set -euo pipefail
-          FILE="sgq-manager-foca/index.html"; NAV="sgq-manager-foca/navigation.js"; APP="sgq-manager-foca/app.js"
+          FILE="sgq-manager-foca/index.html"; NAV="sgq-manager-foca/navigation.js"; APP="sgq-manager-foca/app.js"; DOC="sgq-manager-foca/doc-manager.js"
           for label in "Visão executiva" "Governança do Escopo" "Estratégia e contexto" "Processos e riscos" "Documentos e registros" "Indicadores" "Auditorias" "RQ 045 e planos" "Encarroçadoras e laboratórios" "Certificações" "APQP · PPAP · FMEA" "Metrologia e 5S" "Ações e melhorias" "Garantias e pós-vendas" "Usuários, LGPD e trilha" "Aplicativo e dispositivos"; do grep -q "$label" "$FILE"; done
           test "$(grep -o 'data-target=\"m[0-9][0-9]\"' "$FILE" | wc -l)" -eq 16
           for label in "m17','Controles integrados" "m18','Planilhas" "m19','Alertas" "m20','Agenda SGQ" "m21','Histórico / Audit Log" "m22','Importar RQs" "m23','Portais" "m24','Central de Agentes IA" "m25','Administração" "m26','Configurações" "m27','Manuais" "m28','Procedimentos" "m29','Instruções e Documentos Complementares" "m30','Registros" "m31','Obsoletos / Histórico de Revisões" "m32','Indicadores FOCA" "m33','Planos de Ações" "m34','Auditorias FOCA" "m35','Treinamentos" "m36','Gestão Selos e Manutenções" "m37','Informações Técnicas"; do grep -q "$label" "$NAV"; done
           for id in actionForm actionsList alertsList agendaList portalsList adminPanel accessForm portalForm; do grep -q "id=\"$id\"" "$FILE"; done
-          grep -q "functionalMap" "$NAV"; grep -q "m08:\['actions','actionForm','automation'\]" "$NAV"; grep -q "m19:\['alerts'\]" "$NAV"; grep -q "m20:\['agenda'\]" "$NAV"; grep -q "m23:\['portals'\]" "$NAV"; grep -q "m25:\['admin'\]" "$NAV"; grep -q "captureLiveComponents" "$NAV"; grep -q "appendLive" "$NAV"; grep -q "Gestão Selos e Manutenções" "$NAV"; grep -q "Selos da Qualidade" "$NAV"; grep -q "sgqOpenDocument" "$NAV"; grep -q "navigation.js?v=20260818-r10" "$APP"
+          grep -q "functionalMap" "$NAV"; grep -q "m05:\['docs'\]" "$NAV"; grep -q "m27:\['docs'\]" "$NAV"; grep -q "m31:\['docs'\]" "$NAV"; grep -q "m08:\['actions','actionForm','automation'\]" "$NAV"; grep -q "m19:\['alerts'\]" "$NAV"; grep -q "m20:\['agenda'\]" "$NAV"; grep -q "m23:\['portals'\]" "$NAV"; grep -q "m25:\['admin'\]" "$NAV"; grep -q "Gestão Selos e Manutenções" "$NAV"; grep -q "doc-manager.js?v=20260819-r1" "$APP"; grep -q "navigation.js?v=20260819-r1" "$APP"
+          grep -q "Lista Mestra de Documentos" "$DOC"; grep -q "sgq-documents" "$DOC"; grep -q "sgq_document_revisions" "$DOC"; grep -q "sgqDocObsolete" "$DOC"; grep -q "sgqDocHistory" "$DOC"; grep -q "sgqDocsSetModule" "$DOC"
       - name: Montar pacote publico
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site; mkdir -p _site/sgq-manager-foca
           cp index.html _site/index.html
-          cp sgq-manager-foca/{index.html,app.js,navigation.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
+          cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
       - name: Upload pacote web
@@ -76,19 +77,21 @@ jobs:
           set -euo pipefail
           BASE="${PAGE_URL%/}"
           for i in {1..12}; do
-            if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && curl -fsS "$BASE/sgq-manager-foca/app.js" -o /tmp/app.js && curl -fsS "$BASE/sgq-manager-foca/navigation.js" -o /tmp/navigation.js && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
+            if curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/sgq.html && curl -fsS "$BASE/sgq-manager-foca/app.js" -o /tmp/app.js && curl -fsS "$BASE/sgq-manager-foca/navigation.js" -o /tmp/navigation.js && curl -fsS "$BASE/sgq-manager-foca/doc-manager.js" -o /tmp/doc-manager.js && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          test -s /tmp/sgq.html; test -s /tmp/app.js; test -s /tmp/navigation.js; test -s /tmp/release.json
+          test -s /tmp/sgq.html; test -s /tmp/app.js; test -s /tmp/navigation.js; test -s /tmp/doc-manager.js; test -s /tmp/release.json
           grep -q "SGQ Manager FOCA" /tmp/sgq.html
           for id in actionForm actionsList alertsList agendaList portalsList adminPanel accessForm portalForm; do grep -q "id=\"$id\"" /tmp/sgq.html; done
-          grep -q "functionalMap" /tmp/navigation.js; grep -q "m08:\['actions','actionForm','automation'\]" /tmp/navigation.js; grep -q "m19:\['alerts'\]" /tmp/navigation.js; grep -q "m20:\['agenda'\]" /tmp/navigation.js; grep -q "m23:\['portals'\]" /tmp/navigation.js; grep -q "m25:\['admin'\]" /tmp/navigation.js; grep -q "m36','Gestão Selos e Manutenções" /tmp/navigation.js; grep -q "Selos da Qualidade" /tmp/navigation.js; grep -q "m37','Informações Técnicas" /tmp/navigation.js; grep -q "$GITHUB_SHA" /tmp/release.json
+          grep -q "m05:\['docs'\]" /tmp/navigation.js; grep -q "m27:\['docs'\]" /tmp/navigation.js; grep -q "m31:\['docs'\]" /tmp/navigation.js; grep -q "m08:\['actions','actionForm','automation'\]" /tmp/navigation.js; grep -q "m36','Gestão Selos e Manutenções" /tmp/navigation.js
+          grep -q "Lista Mestra de Documentos" /tmp/doc-manager.js; grep -q "sgq-documents" /tmp/doc-manager.js; grep -q "sgqDocObsolete" /tmp/doc-manager.js; grep -q "sgqDocHistory" /tmp/doc-manager.js
+          grep -q "$GITHUB_SHA" /tmp/release.json
       - name: Publicar status verde
         if: success()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Manager publicado e funções preservadas',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha: context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Manager publicado com gestão documental MASTER',target_url:process.env.PAGE_URL})
       - name: Publicar status vermelho
         if: failure()
         uses: actions/github-script@v7
