@@ -2,16 +2,29 @@ name: F4.1 Cognitive Gate
 
 on:
   pull_request:
+    branches: [ main ]
     paths:
       - 'backend/**'
+      - '.github/workflows/f41.yml'
   push:
     branches:
-      - 'feat/f4-1-homologacao-cognitiva'
+      - 'audit/f41-post-merge-correction'
     paths:
       - 'backend/**'
+      - '.github/workflows/f41.yml'
+  workflow_dispatch:
+    inputs:
+      run_real:
+        description: 'Executar homologação com provider real no ambiente f41-rc'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
 
 jobs:
-  f41:
+  f41-offline:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,3 +40,41 @@ jobs:
         run: pytest -q
       - name: Offline homologation dataset
         run: python scripts/run_f41.py --provider deterministic --model offline-f41 --out f41_report.json
+
+  f41-rc-real:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_real == true }}
+    needs: f41-offline
+    runs-on: ubuntu-latest
+    environment: f41-rc
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      AMICO_OPENAI_API_KEY: ${{ secrets.AMICO_OPENAI_API_KEY }}
+      AMICO_F41_MODEL: ${{ vars.AMICO_F41_MODEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Validate RC configuration
+        shell: bash
+        run: |
+          if [ -z "$AMICO_OPENAI_API_KEY" ]; then
+            echo "AMICO_OPENAI_API_KEY ausente no environment f41-rc."
+            exit 10
+          fi
+          if [ -z "$AMICO_F41_MODEL" ]; then
+            echo "AMICO_F41_MODEL ausente no environment f41-rc."
+            exit 11
+          fi
+          if [[ ! "$AMICO_F41_MODEL" =~ ^[A-Za-z0-9._:-]+$ ]]; then
+            echo "AMICO_F41_MODEL inválido: informe somente o identificador do modelo, sem espaços, quebras de linha ou texto adicional."
+            exit 12
+          fi
+          echo "Credencial RC presente; segredo não será exibido."
+          echo "Modelo F4.1 selecionado: $AMICO_F41_MODEL"
+      - name: Real provider homologation
+        run: python scripts/run_f41.py --provider openai --model "$AMICO_F41_MODEL" --out f41_openai_report.json
