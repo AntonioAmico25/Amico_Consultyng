@@ -1,0 +1,10 @@
+{
+  "release":"2026.08.24",
+  "app":"AMICO Mobile PWA",
+  "ai_disclosure":true,
+  "human_approval_required":true,
+  "audit_log_required":true,
+  "model_gateway":["luna","terra","sol","local"],
+  "critical_actions":["document_change","nc_closure","external_communication"],
+  "status":"E1_PROTOTIPO_CONTROLADO"
+}
