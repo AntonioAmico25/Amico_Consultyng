@@ -1,0 +1,63 @@
+{
+  "release": "2026.08.24",
+  "status": "E1_PROTOTIPO_CONTROLADO",
+  "applies_to": ["web", "pwa-ios", "android", "sgq-manager", "backend"],
+  "model_gateway": {
+    "strategy": "multimodelo",
+    "tiers": {
+      "luna": ["classificacao", "alertas", "tarefas_repetitivas"],
+      "terra": ["documentos", "indicadores", "atendimento_geral"],
+      "sol": ["auditorias_complexas", "causa_raiz", "desenvolvimento", "analise_critica"],
+      "local": ["documentos_confidenciais", "tarefas_repetitivas", "operacao_privada"]
+    }
+  },
+  "financial_controls": {
+    "limits_by": ["tenant", "user", "module", "agent", "process"],
+    "hard_stop_supported": true,
+    "cost_logging_required": true
+  },
+  "human_in_the_loop": {
+    "mandatory_for": [
+      "document_change",
+      "nonconformity_closure",
+      "external_communication",
+      "control_change",
+      "critical_action_execution"
+    ]
+  },
+  "audit_log": {
+    "required_fields": [
+      "prompt",
+      "sources",
+      "model",
+      "model_version",
+      "tools",
+      "timestamp",
+      "human_decision",
+      "result"
+    ]
+  },
+  "transparency": {
+    "identify_ai_interaction": true,
+    "identify_synthetic_content": true,
+    "record_agent_inventory": true,
+    "record_human_owner": true,
+    "contest_and_correction_channel": true
+  },
+  "cybersecurity": {
+    "nist_csf_2_0_mapping": "planned",
+    "iso_iec_42001_package": "planned",
+    "maturity_assessment": "planned"
+  },
+  "priority_flow": [
+    "nc_detected",
+    "collect_evidence",
+    "suggest_root_cause",
+    "suggest_action_plan",
+    "human_approval",
+    "execute",
+    "monitor",
+    "effectiveness_check",
+    "audit_log"
+  ]
+}

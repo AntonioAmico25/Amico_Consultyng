@@ -1,0 +1,10 @@
+{
+  "release":"2026.08.24",
+  "component":"SGQ Manager FOCA",
+  "priority_flow":["nc_detected","collect_evidence","suggest_root_cause","suggest_action_plan","human_approval","execute","monitor","effectiveness_check","audit_log"],
+  "human_in_the_loop":{"document_change":true,"nc_closure":true,"external_communication":true},
+  "audit_log_fields":["prompt","sources","model","model_version","tools","timestamp","human_decision","result"],
+  "model_gateway":["luna","terra","sol","local"],
+  "cost_limits_by":["tenant","user","module","agent","process"],
+  "status":"E1_PROTOTIPO_CONTROLADO"
+}
