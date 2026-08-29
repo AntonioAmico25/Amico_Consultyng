@@ -82,6 +82,10 @@ jobs:
           grep -q "renderExecutiveDashboard" "$AUTO"
           grep -q "Classificação automática ativa" "$ROUTER"
           grep -q "detectModule" "$ROUTER"
+          grep -q "classify" "$ROUTER"
+          grep -q "Confiança" "$ROUTER"
+          grep -q "Revisão humana necessária" "$ROUTER"
+          grep -q "75%" "$ROUTER"
           grep -q "RQ 045 / Ações" "$ROUTER"
           grep -q "Normas e Portarias" "$ROUTER"
           grep -q "registerBatch" "$ROUTER"
@@ -113,8 +117,7 @@ jobs:
           mkdir -p _site/sgq-manager-foca _site/sgq-manager-online
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js,smart-router.js} _site/sgq-manager-online/
-          # Injeta recursos apenas no pacote publicado, mantendo o projeto 100% online via navegador.
-          sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script><script src="smart-router.js?v=20260829-r1"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script><script src="smart-router.js?v=20260829-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
@@ -173,7 +176,7 @@ jobs:
           grep -q "localAutomation" /tmp/online.html
           grep -q "dashboard.js?v=20260829-r2" /tmp/online.html
           grep -q "auto-refresh.js?v=20260828-r1" /tmp/online.html
-          grep -q "smart-router.js?v=20260829-r1" /tmp/online.html
+          grep -q "smart-router.js?v=20260829-r2" /tmp/online.html
           grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
           grep -q "Vetores técnicos" /tmp/dashboard.js
           grep -q "CATRACA" /tmp/dashboard.js
@@ -182,6 +185,8 @@ jobs:
           grep -q "INTERVAL_MS = 60000" /tmp/auto-refresh.js
           grep -q "Atualização automática ativa" /tmp/auto-refresh.js
           grep -q "Classificação automática ativa" /tmp/smart-router.js
+          grep -q "Confiança" /tmp/smart-router.js
+          grep -q "Revisão humana necessária" /tmp/smart-router.js
           grep -q "detectModule" /tmp/smart-router.js
           grep -q "registerBatch" /tmp/smart-router.js
           ! grep -q "manifest.webmanifest" /tmp/online.html
@@ -194,7 +199,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard e roteamento inteligente publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com importacao inteligente e revisao humana publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
