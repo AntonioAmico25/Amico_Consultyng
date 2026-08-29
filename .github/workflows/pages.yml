@@ -41,7 +41,11 @@ jobs:
             sgq-manager-foca/functional-fix.js \
             sgq-manager-foca/recovery.js \
             sgq-manager-foca/patch-r6.js \
-            sgq-manager-foca/styles.css; do
+            sgq-manager-foca/styles.css \
+            agenda-manager/index.html \
+            agenda-manager/manifest.webmanifest \
+            agenda-manager/sw.js \
+            agenda-manager/schema.sql; do
             test -f "$f"
           done
 
@@ -117,16 +121,31 @@ jobs:
           grep -q "Importar RQs" "$FIX"
           grep -q "doc-manager.js?v=20260819-r1" "$APP"
 
+      - name: Validar Agenda Manager RC
+        shell: bash
+        run: |
+          set -euo pipefail
+          FILE="agenda-manager/index.html"
+          grep -q "Agenda Manager" "$FILE"
+          grep -q "Meu Dia" "$FILE"
+          grep -q "Caixa de Entrada Universal" "$FILE"
+          grep -q "Workspaces" "$FILE"
+          grep -q "localStorage" "$FILE"
+          grep -q "serviceWorker" "$FILE"
+          grep -q "create table if not exists tasks" agenda-manager/schema.sql
+          grep -q "tenant_id" agenda-manager/schema.sql
+
       - name: Montar pacote publico
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/sgq-manager-foca _site/sgq-manager-online
+          mkdir -p _site/sgq-manager-foca _site/sgq-manager-online _site/agenda-manager
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js,smart-router.js,central-sync.js} _site/sgq-manager-online/
           sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
+          cp agenda-manager/{index.html,manifest.webmanifest,sw.js} _site/agenda-manager/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
@@ -156,7 +175,7 @@ jobs:
     env:
       PAGE_URL: ${{ needs.deploy.outputs.page_url }}
     steps:
-      - name: Smoke test dos SGQ Managers publicados
+      - name: Smoke test dos produtos publicados
         shell: bash
         run: |
           set -euo pipefail
@@ -168,6 +187,9 @@ jobs:
               && curl -fsS "$BASE/sgq-manager-online/smart-router.js" -o /tmp/smart-router.js \
               && curl -fsS "$BASE/sgq-manager-online/central-sync.js" -o /tmp/central-sync.js \
               && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
+              && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
+              && curl -fsS "$BASE/agenda-manager/manifest.webmanifest" -o /tmp/agenda-manifest.json \
+              && curl -fsS "$BASE/agenda-manager/sw.js" -o /tmp/agenda-sw.js \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
               break
             fi
@@ -179,6 +201,9 @@ jobs:
           test -s /tmp/smart-router.js
           test -s /tmp/central-sync.js
           test -s /tmp/foca.html
+          test -s /tmp/agenda.html
+          test -s /tmp/agenda-manifest.json
+          test -s /tmp/agenda-sw.js
           test -s /tmp/release.json
           grep -q "SGQ MANAGER" /tmp/online.html
           grep -q "ONLINE" /tmp/online.html
@@ -207,6 +232,11 @@ jobs:
           ! grep -q "manifest.webmanifest" /tmp/online.html
           ! grep -q "serviceWorker" /tmp/online.html
           grep -q "SGQ Manager FOCA" /tmp/foca.html
+          grep -q "Agenda Manager" /tmp/agenda.html
+          grep -q "Meu Dia" /tmp/agenda.html
+          grep -q "Caixa de Entrada Universal" /tmp/agenda.html
+          grep -q '"name":"Agenda Manager"' /tmp/agenda-manifest.json
+          grep -q "agenda-manager-v0.1.0" /tmp/agenda-sw.js
           grep -q "$GITHUB_SHA" /tmp/release.json
 
       - name: Publicar status verde
@@ -214,11 +244,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com Supabase como fonte oficial dos modulos centrais',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Managers e Agenda Manager publicados e validados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'failure',context:'pages/smoke-test',description:'Falha na publicacao ou validacao dos SGQ Managers',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'failure',context:'pages/smoke-test',description:'Falha na publicacao ou validacao dos produtos AMICO',target_url:process.env.PAGE_URL})
