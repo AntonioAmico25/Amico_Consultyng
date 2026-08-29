@@ -5,6 +5,52 @@
   const $=id=>document.getElementById(id);
   const esc2=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const editable={module:null,id:null};
+  const ALLOWED_ROLES=new Set(['MASTER','SGQ','GESTOR','CONSULTA']);
+
+  function lockUi(message='Validando acesso e vínculo ativo...'){
+    const app=$('appView'),login=$('loginView'),msg=$('loginMsg');
+    if(app)app.classList.add('hidden');
+    if(login)login.classList.remove('hidden');
+    if(msg)msg.textContent=message;
+  }
+
+  async function denyAccess(reason){
+    lockUi(reason);
+    const badge=$('sessionBadge');if(badge)badge.textContent='ACESSO BLOQUEADO';
+    try{await sb.auth.signOut();}catch(e){console.error('access-guard signout',e)}
+    try{currentUser=null;currentRole='';}catch(_){}
+    return false;
+  }
+
+  async function validateActiveMembership(){
+    const {data:{session},error:se}=await sb.auth.getSession();
+    if(se)throw se;
+    if(!session?.user)return false;
+    const {data,error}=await sb.from('user_memberships').select('tenant_id,company_id,status,is_default,roles:role_id(code)').eq('user_id',session.user.id).eq('status','active').order('is_default',{ascending:false}).limit(1).maybeSingle();
+    if(error)throw error;
+    const role=data?.roles?.code||'';
+    if(!data?.tenant_id||!ALLOWED_ROLES.has(role))return denyAccess('Acesso bloqueado: usuário autenticado sem vínculo ativo e perfil autorizado no tenant. Contate o administrador MASTER.');
+    try{currentRole=role;}catch(_){}
+    const badge=$('sessionBadge');if(badge)badge.textContent=`${session.user.email} · ${role}`;
+    return true;
+  }
+
+  async function enforceAccessGuard(){
+    lockUi('Validando acesso e vínculo ativo...');
+    try{
+      const ok=await validateActiveMembership();
+      if(!ok){const {data:{session}}=await sb.auth.getSession();if(!session)lockUi('');return false;}
+      const app=$('appView'),login=$('loginView'),msg=$('loginMsg');
+      if(login)login.classList.add('hidden');
+      if(app)app.classList.remove('hidden');
+      if(msg)msg.textContent='';
+      return true;
+    }catch(e){
+      console.error('access-guard',e);
+      await denyAccess('Acesso bloqueado por segurança: não foi possível validar o vínculo ativo. Tente novamente ou contate o administrador MASTER.');
+      return false;
+    }
+  }
 
   async function refresh(){
     if(window.SGQCentralSync?.pullCentral) await window.SGQCentralSync.pullCentral();
@@ -12,6 +58,7 @@
   }
 
   async function createCentral(module,item,form,type){
+    if(!await validateActiveMembership())throw new Error('Acesso bloqueado: vínculo ativo obrigatório.');
     if(!window.SGQCentralSync?.centralUpsert) throw new Error('Sincronização central indisponível');
     await window.SGQCentralSync.centralUpsert(module,item);
     form.reset();
@@ -21,6 +68,7 @@
   }
 
   async function updateCentral(module,id,item,form,type){
+    if(!await validateActiveMembership())throw new Error('Acesso bloqueado: vínculo ativo obrigatório.');
     await invoke(CRUD_API,{action:'update',module,id,item});
     editable.module=null;editable.id=null;
     form.reset();
@@ -30,6 +78,7 @@
   }
 
   async function removeCentral(module,id,label){
+    if(!await validateActiveMembership())return;
     if(currentRole!=='MASTER') return alert('Somente MASTER pode excluir definitivamente registros centrais.');
     if(!confirm(`Excluir definitivamente ${label}?`))return;
     await invoke(CRUD_API,{action:'delete',module,id});
@@ -60,6 +109,7 @@
   }
 
   async function completeAction(row){
+    if(!await validateActiveMembership())return;
     await invoke(CRUD_API,{action:'update',module:'ACTIONS',id:row.id,item:{...row,status:'Concluída'}});
     if(typeof event==='function')event('AÇÃO','Ação concluída no banco central');
     await refresh();
@@ -96,6 +146,7 @@
     setTimeout(renderCrudLists,1200);
   }
 
-  window.SGQCentralCRUD={refresh,renderCrudLists,beginEdit,removeCentral};
+  window.SGQCentralCRUD={refresh,renderCrudLists,beginEdit,removeCentral,validateActiveMembership,enforceAccessGuard};
+  enforceAccessGuard();
   install();
 })();
