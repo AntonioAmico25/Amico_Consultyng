@@ -33,6 +33,7 @@ jobs:
             sgq-manager-online/dashboard.js \
             sgq-manager-online/auto-refresh.js \
             sgq-manager-online/smart-router.js \
+            sgq-manager-online/central-sync.js \
             sgq-manager-foca/index.html \
             sgq-manager-foca/app.js \
             sgq-manager-foca/navigation.js \
@@ -52,6 +53,7 @@ jobs:
           DASH="sgq-manager-online/dashboard.js"
           AUTO="sgq-manager-online/auto-refresh.js"
           ROUTER="sgq-manager-online/smart-router.js"
+          CENTRAL="sgq-manager-online/central-sync.js"
           grep -q "SGQ MANAGER" "$FILE"
           grep -q "ONLINE" "$FILE"
           grep -q "Visão executiva" "$FILE"
@@ -89,6 +91,10 @@ jobs:
           grep -q "RQ 045 / Ações" "$ROUTER"
           grep -q "Normas e Portarias" "$ROUTER"
           grep -q "registerBatch" "$ROUTER"
+          grep -q "sgq-core-record-admin" "$CENTRAL"
+          grep -q "Sincronização online ativa" "$CENTRAL"
+          grep -q "pushPending" "$CENTRAL"
+          grep -q "pullCentral" "$CENTRAL"
           ! grep -q "manifest.webmanifest" "$FILE"
           ! grep -q "serviceWorker" "$FILE"
           ! grep -q "PWA automatizada" "$FILE"
@@ -116,8 +122,8 @@ jobs:
           rm -rf _site
           mkdir -p _site/sgq-manager-foca _site/sgq-manager-online
           cp index.html _site/index.html
-          cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js,smart-router.js} _site/sgq-manager-online/
-          sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script><script src="smart-router.js?v=20260829-r2"></script></body>#' _site/sgq-manager-online/index.html
+          cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js,smart-router.js,central-sync.js} _site/sgq-manager-online/
+          sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r1"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
@@ -158,6 +164,7 @@ jobs:
               && curl -fsS "$BASE/sgq-manager-online/dashboard.js" -o /tmp/dashboard.js \
               && curl -fsS "$BASE/sgq-manager-online/auto-refresh.js" -o /tmp/auto-refresh.js \
               && curl -fsS "$BASE/sgq-manager-online/smart-router.js" -o /tmp/smart-router.js \
+              && curl -fsS "$BASE/sgq-manager-online/central-sync.js" -o /tmp/central-sync.js \
               && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
               break
@@ -168,6 +175,7 @@ jobs:
           test -s /tmp/dashboard.js
           test -s /tmp/auto-refresh.js
           test -s /tmp/smart-router.js
+          test -s /tmp/central-sync.js
           test -s /tmp/foca.html
           test -s /tmp/release.json
           grep -q "SGQ MANAGER" /tmp/online.html
@@ -177,6 +185,7 @@ jobs:
           grep -q "dashboard.js?v=20260829-r2" /tmp/online.html
           grep -q "auto-refresh.js?v=20260828-r1" /tmp/online.html
           grep -q "smart-router.js?v=20260829-r2" /tmp/online.html
+          grep -q "central-sync.js?v=20260829-r1" /tmp/online.html
           grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
           grep -q "Vetores técnicos" /tmp/dashboard.js
           grep -q "CATRACA" /tmp/dashboard.js
@@ -189,6 +198,8 @@ jobs:
           grep -q "Revisão humana necessária" /tmp/smart-router.js
           grep -q "detectModule" /tmp/smart-router.js
           grep -q "registerBatch" /tmp/smart-router.js
+          grep -q "sgq-core-record-admin" /tmp/central-sync.js
+          grep -q "Sincronização online ativa" /tmp/central-sync.js
           ! grep -q "manifest.webmanifest" /tmp/online.html
           ! grep -q "serviceWorker" /tmp/online.html
           grep -q "SGQ Manager FOCA" /tmp/foca.html
@@ -199,7 +210,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com importacao inteligente e revisao humana publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com importacao inteligente e sincronizacao central publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
