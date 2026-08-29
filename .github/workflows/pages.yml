@@ -68,6 +68,9 @@ jobs:
           grep -q "Velocímetro" "$DASH"
           grep -q "Histograma" "$DASH"
           grep -q "Mapa vetorial" "$DASH"
+          grep -q "Vetores técnicos" "$DASH"
+          grep -q "CATRACA" "$DASH"
+          grep -q "ELEVADOR" "$DASH"
           grep -q "Relatório consolidado" "$DASH"
           grep -q "Histórico de Revisões" "$DASH"
           grep -q "INTERVAL_MS = 60000" "$AUTO"
@@ -104,7 +107,7 @@ jobs:
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js} _site/sgq-manager-online/
           # Injeta recursos apenas no pacote publicado, mantendo o projeto 100% online via navegador.
-          sed -i 's#</body>#<script src="dashboard.js?v=20260828-r1"></script><script src="auto-refresh.js?v=20260828-r1"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="dashboard.js?v=20260829-r2"></script><script src="auto-refresh.js?v=20260828-r1"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
@@ -159,9 +162,12 @@ jobs:
           grep -q "ONLINE" /tmp/online.html
           grep -q "Histórico de Revisões" /tmp/online.html
           grep -q "localAutomation" /tmp/online.html
-          grep -q "dashboard.js?v=20260828-r1" /tmp/online.html
+          grep -q "dashboard.js?v=20260829-r2" /tmp/online.html
           grep -q "auto-refresh.js?v=20260828-r1" /tmp/online.html
           grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
+          grep -q "Vetores técnicos" /tmp/dashboard.js
+          grep -q "CATRACA" /tmp/dashboard.js
+          grep -q "ELEVADOR" /tmp/dashboard.js
           grep -q "Relatório consolidado" /tmp/dashboard.js
           grep -q "INTERVAL_MS = 60000" /tmp/auto-refresh.js
           grep -q "Atualização automática ativa" /tmp/auto-refresh.js
@@ -175,7 +181,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard e atualização automática publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard vetorial profissional publicado',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
