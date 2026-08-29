@@ -31,6 +31,7 @@ jobs:
             index.html \
             sgq-manager-online/index.html \
             sgq-manager-online/dashboard.js \
+            sgq-manager-online/auto-refresh.js \
             sgq-manager-foca/index.html \
             sgq-manager-foca/app.js \
             sgq-manager-foca/navigation.js \
@@ -48,6 +49,7 @@ jobs:
           set -euo pipefail
           FILE="sgq-manager-online/index.html"
           DASH="sgq-manager-online/dashboard.js"
+          AUTO="sgq-manager-online/auto-refresh.js"
           grep -q "SGQ MANAGER" "$FILE"
           grep -q "ONLINE" "$FILE"
           grep -q "Visão executiva" "$FILE"
@@ -68,6 +70,11 @@ jobs:
           grep -q "Mapa vetorial" "$DASH"
           grep -q "Relatório consolidado" "$DASH"
           grep -q "Histórico de Revisões" "$DASH"
+          grep -q "INTERVAL_MS = 60000" "$AUTO"
+          grep -q "Atualização automática ativa" "$AUTO"
+          grep -q "loadDocs" "$AUTO"
+          grep -q "loadNorms" "$AUTO"
+          grep -q "renderExecutiveDashboard" "$AUTO"
           ! grep -q "manifest.webmanifest" "$FILE"
           ! grep -q "serviceWorker" "$FILE"
           ! grep -q "PWA automatizada" "$FILE"
@@ -95,9 +102,9 @@ jobs:
           rm -rf _site
           mkdir -p _site/sgq-manager-foca _site/sgq-manager-online
           cp index.html _site/index.html
-          cp sgq-manager-online/{index.html,dashboard.js} _site/sgq-manager-online/
-          # Injeta o dashboard apenas no pacote publicado, sem transformar o projeto em PWA.
-          sed -i 's#</body>#<script src="dashboard.js?v=20260828-r1"></script></body>#' _site/sgq-manager-online/index.html
+          cp sgq-manager-online/{index.html,dashboard.js,auto-refresh.js} _site/sgq-manager-online/
+          # Injeta recursos apenas no pacote publicado, mantendo o projeto 100% online via navegador.
+          sed -i 's#</body>#<script src="dashboard.js?v=20260828-r1"></script><script src="auto-refresh.js?v=20260828-r1"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
@@ -136,6 +143,7 @@ jobs:
           for i in {1..12}; do
             if curl -fsS "$BASE/sgq-manager-online/" -o /tmp/online.html \
               && curl -fsS "$BASE/sgq-manager-online/dashboard.js" -o /tmp/dashboard.js \
+              && curl -fsS "$BASE/sgq-manager-online/auto-refresh.js" -o /tmp/auto-refresh.js \
               && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
               break
@@ -144,6 +152,7 @@ jobs:
           done
           test -s /tmp/online.html
           test -s /tmp/dashboard.js
+          test -s /tmp/auto-refresh.js
           test -s /tmp/foca.html
           test -s /tmp/release.json
           grep -q "SGQ MANAGER" /tmp/online.html
@@ -151,8 +160,11 @@ jobs:
           grep -q "Histórico de Revisões" /tmp/online.html
           grep -q "localAutomation" /tmp/online.html
           grep -q "dashboard.js?v=20260828-r1" /tmp/online.html
+          grep -q "auto-refresh.js?v=20260828-r1" /tmp/online.html
           grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
           grep -q "Relatório consolidado" /tmp/dashboard.js
+          grep -q "INTERVAL_MS = 60000" /tmp/auto-refresh.js
+          grep -q "Atualização automática ativa" /tmp/auto-refresh.js
           ! grep -q "manifest.webmanifest" /tmp/online.html
           ! grep -q "serviceWorker" /tmp/online.html
           grep -q "SGQ Manager FOCA" /tmp/foca.html
@@ -163,7 +175,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard executivo e FOCA publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard e atualização automática publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
