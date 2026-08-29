@@ -30,6 +30,7 @@ jobs:
           for f in \
             index.html \
             sgq-manager-online/index.html \
+            sgq-manager-online/dashboard.js \
             sgq-manager-foca/index.html \
             sgq-manager-foca/app.js \
             sgq-manager-foca/navigation.js \
@@ -46,6 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           FILE="sgq-manager-online/index.html"
+          DASH="sgq-manager-online/dashboard.js"
           grep -q "SGQ MANAGER" "$FILE"
           grep -q "ONLINE" "$FILE"
           grep -q "Visão executiva" "$FILE"
@@ -55,10 +57,17 @@ jobs:
           grep -q "Indicadores" "$FILE"
           grep -q "Riscos e oportunidades" "$FILE"
           grep -q "Agenda e alertas" "$FILE"
+          grep -q "Normas e Portarias" "$FILE"
           grep -q "Histórico de Revisões" "$FILE"
-          grep -q "runAutomation" "$FILE"
+          grep -q "localAutomation" "$FILE"
           grep -q "Exportar backup" "$FILE"
           grep -q "Importar" "$FILE"
+          grep -q "Dashboard Executivo do SGQ" "$DASH"
+          grep -q "Velocímetro" "$DASH"
+          grep -q "Histograma" "$DASH"
+          grep -q "Mapa vetorial" "$DASH"
+          grep -q "Relatório consolidado" "$DASH"
+          grep -q "Histórico de Revisões" "$DASH"
           ! grep -q "manifest.webmanifest" "$FILE"
           ! grep -q "serviceWorker" "$FILE"
           ! grep -q "PWA automatizada" "$FILE"
@@ -86,7 +95,9 @@ jobs:
           rm -rf _site
           mkdir -p _site/sgq-manager-foca _site/sgq-manager-online
           cp index.html _site/index.html
-          cp sgq-manager-online/index.html _site/sgq-manager-online/index.html
+          cp sgq-manager-online/{index.html,dashboard.js} _site/sgq-manager-online/
+          # Injeta o dashboard apenas no pacote publicado, sem transformar o projeto em PWA.
+          sed -i 's#</body>#<script src="dashboard.js?v=20260828-r1"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
@@ -124,6 +135,7 @@ jobs:
           BASE="${PAGE_URL%/}"
           for i in {1..12}; do
             if curl -fsS "$BASE/sgq-manager-online/" -o /tmp/online.html \
+              && curl -fsS "$BASE/sgq-manager-online/dashboard.js" -o /tmp/dashboard.js \
               && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
               break
@@ -131,12 +143,16 @@ jobs:
             sleep 5
           done
           test -s /tmp/online.html
+          test -s /tmp/dashboard.js
           test -s /tmp/foca.html
           test -s /tmp/release.json
           grep -q "SGQ MANAGER" /tmp/online.html
           grep -q "ONLINE" /tmp/online.html
           grep -q "Histórico de Revisões" /tmp/online.html
-          grep -q "runAutomation" /tmp/online.html
+          grep -q "localAutomation" /tmp/online.html
+          grep -q "dashboard.js?v=20260828-r1" /tmp/online.html
+          grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
+          grep -q "Relatório consolidado" /tmp/dashboard.js
           ! grep -q "manifest.webmanifest" /tmp/online.html
           ! grep -q "serviceWorker" /tmp/online.html
           grep -q "SGQ Manager FOCA" /tmp/foca.html
@@ -147,7 +163,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Manager Online e FOCA publicados e validados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ Online com dashboard executivo e FOCA publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
