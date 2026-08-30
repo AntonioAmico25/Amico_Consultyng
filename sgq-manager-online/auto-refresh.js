@@ -2,6 +2,7 @@
   'use strict';
 
   const INTERVAL_MS = 60000;
+  const BRAZIL_MAP_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@48947bc2498931cdb777065d6803723835fbf06c/sgq-manager-online/brazil-map.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
@@ -31,6 +32,16 @@
     }
   }
 
+  function ensureBrazilMap() {
+    if (window.SGQBrazilMap || document.querySelector('script[data-sgq-brazil-map]')) return;
+    const s = document.createElement('script');
+    s.src = BRAZIL_MAP_SRC;
+    s.async = true;
+    s.dataset.sgqBrazilMap = '1';
+    s.onerror = () => console.error('Falha ao carregar o Mapa do Brasil do SGQ Manager.');
+    document.head.appendChild(s);
+  }
+
   function updateBadge(state, detail = '') {
     ensureBadge();
     const badge = byId('execAutoUpdate');
@@ -54,12 +65,14 @@
     refreshing = true;
     updateBadge('loading');
     try {
+      ensureBrazilMap();
       const jobs = [];
       if (typeof window.loadDocs === 'function') jobs.push(window.loadDocs());
       if (typeof window.loadNorms === 'function') jobs.push(window.loadNorms());
       await Promise.allSettled(jobs);
       if (typeof window.localAutomation === 'function') window.localAutomation();
       if (typeof window.renderExecutiveDashboard === 'function') window.renderExecutiveDashboard();
+      if (typeof window.SGQBrazilMap?.render === 'function') await window.SGQBrazilMap.render();
       lastSuccess = new Date();
       lastError = null;
       updateBadge('ok');
@@ -71,15 +84,14 @@
     }
   }
 
-  // Atualização ao retornar para a aba e quando a conexão volta.
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshAll();
   });
   window.addEventListener('online', refreshAll);
 
-  // Primeiro ciclo após a autenticação/interface ficar disponível.
   const bootTimer = setInterval(() => {
     ensureBadge();
+    ensureBrazilMap();
     if (isAppActive()) {
       clearInterval(bootTimer);
       refreshAll();
