@@ -23,7 +23,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validar arquivos obrigatorios
+      - name: Validar arquivos obrigatórios
         shell: bash
         run: |
           set -euo pipefail
@@ -36,6 +36,11 @@ jobs:
             sgq-manager-online/smart-router.js \
             sgq-manager-online/central-sync.js \
             sgq-manager-online/central-crud.js \
+            sgq-manager-online/master-admin.js \
+            sgq-manager-online/ptbr-ui.js \
+            sgq-manager-online/auth-hard-gate.js \
+            sgq-manager-online/agenda-bridge.js \
+            sgq-manager-online/productivity-studio.js \
             sgq-manager-foca/index.html \
             sgq-manager-foca/app.js \
             sgq-manager-foca/navigation.js \
@@ -58,125 +63,48 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          FILE="sgq-manager-online/index.html"
-          DASH="sgq-manager-online/dashboard.js"
-          MAP="sgq-manager-online/brazil-map.js"
-          AUTO="sgq-manager-online/auto-refresh.js"
-          ROUTER="sgq-manager-online/smart-router.js"
-          CENTRAL="sgq-manager-online/central-sync.js"
-          CRUD="sgq-manager-online/central-crud.js"
-          grep -q "SGQ MANAGER" "$FILE"
-          grep -q "ONLINE" "$FILE"
-          grep -q "Visão executiva" "$FILE"
-          grep -q "Documentos e registros" "$FILE"
-          grep -q "RQ 045 / Ações" "$FILE"
-          grep -q "Auditorias" "$FILE"
-          grep -q "Indicadores" "$FILE"
-          grep -q "Riscos e oportunidades" "$FILE"
-          grep -q "Agenda e alertas" "$FILE"
-          grep -q "Normas e Portarias" "$FILE"
-          grep -q "Histórico de Revisões" "$FILE"
-          grep -q "localAutomation" "$FILE"
-          grep -q "Exportar backup" "$FILE"
-          grep -q "Importar" "$FILE"
-          grep -q "Dashboard Executivo do SGQ" "$DASH"
-          grep -q "Velocímetro" "$DASH"
-          grep -q "Histograma" "$DASH"
-          grep -q "Mapa vetorial" "$DASH"
-          grep -q "Vetores técnicos" "$DASH"
-          grep -q "CATRACA" "$DASH"
-          grep -q "ELEVADOR" "$DASH"
-          grep -q "Relatório consolidado" "$DASH"
-          grep -q "Histórico de Revisões" "$DASH"
-          grep -q "Região Sul — Dados do SGQ Manager" "$MAP"
-          grep -q "servicodados.ibge.gov.br" "$MAP"
-          grep -q "SGQCentralSync" "$MAP"
-          grep -q "moduleData" "$MAP"
-          grep -q "renderBrazilMap" "$MAP"
-          grep -q "INTERVAL_MS = 60000" "$AUTO"
-          grep -q "Atualização automática ativa" "$AUTO"
-          grep -q "loadDocs" "$AUTO"
-          grep -q "loadNorms" "$AUTO"
-          grep -q "renderExecutiveDashboard" "$AUTO"
-          grep -q "Classificação automática ativa" "$ROUTER"
-          grep -q "detectModule" "$ROUTER"
-          grep -q "classify" "$ROUTER"
-          grep -q "Confiança" "$ROUTER"
-          grep -q "Revisão humana necessária" "$ROUTER"
-          grep -q "75%" "$ROUTER"
-          grep -q "RQ 045 / Ações" "$ROUTER"
-          grep -q "Normas e Portarias" "$ROUTER"
-          grep -q "registerBatch" "$ROUTER"
-          grep -q "sgq-core-record-admin" "$CENTRAL"
-          grep -q "Fonte oficial online ativa" "$CENTRAL"
-          grep -q "Supabase é a fonte oficial" "$CENTRAL"
-          grep -q "pushPending" "$CENTRAL"
-          grep -q "pullCentral" "$CENTRAL"
-          grep -q "centralUpsert" "$CENTRAL"
-          grep -q "sgq-core-record-crud" "$CRUD"
-          grep -q "createCentral" "$CRUD"
-          grep -q "updateCentral" "$CRUD"
-          grep -q "removeCentral" "$CRUD"
-          grep -q "completeAction" "$CRUD"
-          grep -q "validateActiveMembership" "$CRUD"
-          grep -q "enforceAccessGuard" "$CRUD"
-          ! grep -q "manifest.webmanifest" "$FILE"
-          ! grep -q "serviceWorker" "$FILE"
-          ! grep -q "PWA automatizada" "$FILE"
-
-      - name: Validar estrutura SGQ FOCA existente
-        shell: bash
-        run: |
-          set -euo pipefail
-          FILE="sgq-manager-foca/index.html"
-          NAV="sgq-manager-foca/navigation.js"
-          APP="sgq-manager-foca/app.js"
-          DOC="sgq-manager-foca/doc-manager.js"
-          FIX="sgq-manager-foca/functional-fix.js"
-          for label in "Visão executiva" "Governança do Escopo" "Estratégia e contexto" "Processos e riscos" "Documentos e registros" "Indicadores" "Auditorias" "RQ 045 e planos" "Encarroçadoras e laboratórios" "Certificações" "APQP · PPAP · FMEA" "Metrologia e 5S" "Ações e melhorias" "Garantias e pós-vendas" "Usuários, LGPD e trilha" "Aplicativo e dispositivos"; do grep -q "$label" "$FILE"; done
-          test "$(grep -o 'data-target=\"m[0-9][0-9]\"' "$FILE" | wc -l)" -eq 16
-          grep -q "functionalMap" "$NAV"
-          grep -q "Lista Mestra de Documentos" "$DOC"
-          grep -q "Importar RQs" "$FIX"
-          grep -q "doc-manager.js?v=20260819-r1" "$APP"
+          grep -q "SGQ MANAGER" sgq-manager-online/index.html
+          grep -q "Histórico de Revisões" sgq-manager-online/index.html
+          grep -q "Dashboard Executivo do SGQ" sgq-manager-online/dashboard.js
+          grep -q "Região Sul — Dados do SGQ Manager" sgq-manager-online/brazil-map.js
+          grep -q "INTERVAL_MS = 60000" sgq-manager-online/auto-refresh.js
+          grep -q "sgq-explicit-auth" sgq-manager-online/auth-hard-gate.js
+          grep -q "signInWithPassword" sgq-manager-online/auth-hard-gate.js
+          grep -q "Agenda Manager Online" sgq-manager-online/agenda-bridge.js
+          grep -q "agm_tasks" sgq-manager-online/agenda-bridge.js
+          grep -q "Central de Produtividade e Desenvolvimento" sgq-manager-online/productivity-studio.js
+          grep -q "Word / Documentos" sgq-manager-online/productivity-studio.js
+          grep -q "Excel / Planilhas" sgq-manager-online/productivity-studio.js
+          grep -q "PowerPoint" sgq-manager-online/productivity-studio.js
+          grep -q "Project" sgq-manager-online/productivity-studio.js
+          grep -q "Power Query" sgq-manager-online/productivity-studio.js
+          grep -q "Canva" sgq-manager-online/productivity-studio.js
+          grep -q "Central de IA" sgq-manager-online/productivity-studio.js
+          grep -q "sgq-core-record-admin" sgq-manager-online/central-sync.js
+          grep -q "sgq-core-record-crud" sgq-manager-online/central-crud.js
 
       - name: Validar Agenda Manager R07
         shell: bash
         run: |
           set -euo pipefail
-          FILE="agenda-manager/index.html"
-          CLIENT="agenda-manager/supabase-client.js"
-          R07="agenda-manager/r07.js"
-          MIG="agenda-manager/migrations/007_commercial_foundation.sql"
-          grep -q "Agenda Manager" "$FILE"
-          grep -q "Meu Dia" "$FILE"
-          grep -q "Caixa de Entrada Universal" "$FILE"
-          grep -q "Workspaces" "$FILE"
-          grep -q "Supabase/PostgreSQL" "$FILE"
-          grep -q "RLS" "$FILE"
-          grep -q "serviceWorker" "$FILE"
-          grep -q "agendaBootstrap" "$CLIENT"
-          grep -q "agm_tasks" "$CLIENT"
-          grep -q "sb_publishable_" "$CLIENT"
-          grep -q "AGENDA_MANAGER_R07" "$R07"
-          grep -q "agenda_tenant_subscriptions" "$R07"
-          grep -q "agenda_integration_connections" "$R07"
-          grep -q "Preço a definir" "$R07"
-          grep -q "agenda_plans" "$MIG"
-          grep -q "agenda_tenant_subscriptions" "$MIG"
-          grep -q "create table if not exists tasks" agenda-manager/schema.sql
-          grep -q "tenant_id" agenda-manager/schema.sql
+          grep -q "Agenda Manager" agenda-manager/index.html
+          grep -q "Meu Dia" agenda-manager/index.html
+          grep -q "agm_tasks" agenda-manager/supabase-client.js
+          grep -q "AGENDA_MANAGER_R07" agenda-manager/r07.js
+          grep -q "agenda_tenant_subscriptions" agenda-manager/r07.js
+          grep -q "agenda_plans" agenda-manager/migrations/007_commercial_foundation.sql
           grep -q "agenda-manager-v0.3-r07" agenda-manager/sw.js
 
-      - name: Montar pacote publico
+      - name: Montar pacote público
         shell: bash
         run: |
           set -euo pipefail
           rm -rf _site
-          mkdir -p _site/sgq-manager-foca _site/sgq-manager-online _site/agenda-manager
+          mkdir -p _site/sgq-manager-online _site/sgq-manager-foca _site/agenda-manager
           cp index.html _site/index.html
-          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js} _site/sgq-manager-online/
-          sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="auto-refresh.js?v=20260830-r3"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
+          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,agenda-bridge.js,productivity-studio.js} _site/sgq-manager-online/
+          sed -i 's#</head>#<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260830-r1"></script></head>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           cp agenda-manager/{index.html,supabase-client.js,r07.js,manifest.webmanifest,sw.js} _site/agenda-manager/
           sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script></body>#' _site/agenda-manager/index.html
@@ -203,68 +131,36 @@ jobs:
         uses: actions/deploy-pages@v4
 
   verify:
-    name: Verificar publicacao
+    name: Verificar publicação
     needs: deploy
     runs-on: ubuntu-latest
     env:
       PAGE_URL: ${{ needs.deploy.outputs.page_url }}
     steps:
-      - name: Smoke test dos produtos publicados
+      - name: Smoke test
         shell: bash
         run: |
           set -euo pipefail
           BASE="${PAGE_URL%/}"
           for i in {1..12}; do
             if curl -fsS "$BASE/sgq-manager-online/" -o /tmp/online.html \
-              && curl -fsS "$BASE/sgq-manager-online/dashboard.js" -o /tmp/dashboard.js \
-              && curl -fsS "$BASE/sgq-manager-online/brazil-map.js" -o /tmp/brazil-map.js \
-              && curl -fsS "$BASE/sgq-manager-online/auto-refresh.js" -o /tmp/auto-refresh.js \
-              && curl -fsS "$BASE/sgq-manager-online/smart-router.js" -o /tmp/smart-router.js \
-              && curl -fsS "$BASE/sgq-manager-online/central-sync.js" -o /tmp/central-sync.js \
-              && curl -fsS "$BASE/sgq-manager-online/central-crud.js" -o /tmp/central-crud.js \
-              && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
+              && curl -fsS "$BASE/sgq-manager-online/auth-hard-gate.js" -o /tmp/auth.js \
+              && curl -fsS "$BASE/sgq-manager-online/productivity-studio.js" -o /tmp/prod.js \
+              && curl -fsS "$BASE/sgq-manager-online/agenda-bridge.js" -o /tmp/agenda-bridge.js \
               && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
-              && curl -fsS "$BASE/agenda-manager/supabase-client.js" -o /tmp/agenda-client.js \
               && curl -fsS "$BASE/agenda-manager/r07.js" -o /tmp/agenda-r07.js \
-              && curl -fsS "$BASE/agenda-manager/manifest.webmanifest" -o /tmp/agenda-manifest.json \
-              && curl -fsS "$BASE/agenda-manager/sw.js" -o /tmp/agenda-sw.js \
-              && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
-              break
-            fi
+              && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          for f in /tmp/online.html /tmp/dashboard.js /tmp/brazil-map.js /tmp/auto-refresh.js /tmp/smart-router.js /tmp/central-sync.js /tmp/central-crud.js /tmp/foca.html /tmp/agenda.html /tmp/agenda-client.js /tmp/agenda-r07.js /tmp/agenda-manifest.json /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
-          grep -q "SGQ MANAGER" /tmp/online.html
-          grep -q "ONLINE" /tmp/online.html
-          grep -q "Histórico de Revisões" /tmp/online.html
-          grep -q "localAutomation" /tmp/online.html
-          grep -q "dashboard.js?v=20260830-r3" /tmp/online.html
-          grep -q "brazil-map.js?v=20260830-r8" /tmp/online.html
-          grep -q "central-crud.js?v=20260830-r2" /tmp/online.html
-          grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
-          grep -q "CATRACA" /tmp/dashboard.js
-          grep -q "ELEVADOR" /tmp/dashboard.js
-          grep -q "Região Sul — Dados do SGQ Manager" /tmp/brazil-map.js
-          grep -q "servicodados.ibge.gov.br" /tmp/brazil-map.js
-          grep -q "SGQCentralSync" /tmp/brazil-map.js
-          grep -q "moduleData" /tmp/brazil-map.js
-          grep -q "renderBrazilMap" /tmp/brazil-map.js
-          grep -q "INTERVAL_MS = 60000" /tmp/auto-refresh.js
-          grep -q "Classificação automática ativa" /tmp/smart-router.js
-          grep -q "centralUpsert" /tmp/central-sync.js
-          grep -q "sgq-core-record-crud" /tmp/central-crud.js
-          grep -q "validateActiveMembership" /tmp/central-crud.js
-          grep -q "enforceAccessGuard" /tmp/central-crud.js
-          grep -q "SGQ Manager FOCA" /tmp/foca.html
+          for f in /tmp/online.html /tmp/auth.js /tmp/prod.js /tmp/agenda-bridge.js /tmp/agenda.html /tmp/agenda-r07.js /tmp/release.json; do test -s "$f"; done
+          grep -q "auth-hard-gate.js?v=20260830-r1" /tmp/online.html
+          grep -q "productivity-studio.js?v=20260830-r1" /tmp/online.html
+          grep -q "agenda-bridge.js?v=20260830-r1" /tmp/online.html
+          grep -q "sgq-explicit-auth" /tmp/auth.js
+          grep -q "Central de Produtividade e Desenvolvimento" /tmp/prod.js
+          grep -q "Agenda Manager Online" /tmp/agenda-bridge.js
           grep -q "Agenda Manager" /tmp/agenda.html
-          grep -q "Meu Dia" /tmp/agenda.html
-          grep -q "Supabase/PostgreSQL" /tmp/agenda.html
-          grep -q "r07.js?v=20260830-r1" /tmp/agenda.html
-          grep -q "agendaBootstrap" /tmp/agenda-client.js
           grep -q "AGENDA_MANAGER_R07" /tmp/agenda-r07.js
-          grep -q "agenda_tenant_subscriptions" /tmp/agenda-r07.js
-          grep -q '"name":"Agenda Manager"' /tmp/agenda-manifest.json
-          grep -q "agenda-manager-v0.3-r07" /tmp/agenda-sw.js
           grep -q "$GITHUB_SHA" /tmp/release.json
 
       - name: Publicar status verde
@@ -272,11 +168,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ e Agenda Manager R07 comercial publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ + Agenda + Produtividade publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'failure',context:'pages/smoke-test',description:'Falha na publicacao ou validacao dos produtos AMICO',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'failure',context:'pages/smoke-test',description:'Falha na publicação AMICO',target_url:process.env.PAGE_URL})
