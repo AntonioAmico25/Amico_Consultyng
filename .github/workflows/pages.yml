@@ -46,9 +46,11 @@ jobs:
             sgq-manager-foca/styles.css \
             agenda-manager/index.html \
             agenda-manager/supabase-client.js \
+            agenda-manager/r07.js \
             agenda-manager/manifest.webmanifest \
             agenda-manager/sw.js \
-            agenda-manager/schema.sql; do
+            agenda-manager/schema.sql \
+            agenda-manager/migrations/007_commercial_foundation.sql; do
             test -f "$f"
           done
 
@@ -138,12 +140,14 @@ jobs:
           grep -q "Importar RQs" "$FIX"
           grep -q "doc-manager.js?v=20260819-r1" "$APP"
 
-      - name: Validar Agenda Manager R06
+      - name: Validar Agenda Manager R07
         shell: bash
         run: |
           set -euo pipefail
           FILE="agenda-manager/index.html"
           CLIENT="agenda-manager/supabase-client.js"
+          R07="agenda-manager/r07.js"
+          MIG="agenda-manager/migrations/007_commercial_foundation.sql"
           grep -q "Agenda Manager" "$FILE"
           grep -q "Meu Dia" "$FILE"
           grep -q "Caixa de Entrada Universal" "$FILE"
@@ -154,8 +158,15 @@ jobs:
           grep -q "agendaBootstrap" "$CLIENT"
           grep -q "agm_tasks" "$CLIENT"
           grep -q "sb_publishable_" "$CLIENT"
+          grep -q "AGENDA_MANAGER_R07" "$R07"
+          grep -q "agenda_tenant_subscriptions" "$R07"
+          grep -q "agenda_integration_connections" "$R07"
+          grep -q "Preço a definir" "$R07"
+          grep -q "agenda_plans" "$MIG"
+          grep -q "agenda_tenant_subscriptions" "$MIG"
           grep -q "create table if not exists tasks" agenda-manager/schema.sql
           grep -q "tenant_id" agenda-manager/schema.sql
+          grep -q "agenda-manager-v0.3-r07" agenda-manager/sw.js
 
       - name: Montar pacote publico
         shell: bash
@@ -167,7 +178,8 @@ jobs:
           cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js} _site/sgq-manager-online/
           sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="auto-refresh.js?v=20260830-r3"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
-          cp agenda-manager/{index.html,supabase-client.js,manifest.webmanifest,sw.js} _site/agenda-manager/
+          cp agenda-manager/{index.html,supabase-client.js,r07.js,manifest.webmanifest,sw.js} _site/agenda-manager/
+          sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script></body>#' _site/agenda-manager/index.html
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
@@ -213,6 +225,7 @@ jobs:
               && curl -fsS "$BASE/sgq-manager-foca/" -o /tmp/foca.html \
               && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
               && curl -fsS "$BASE/agenda-manager/supabase-client.js" -o /tmp/agenda-client.js \
+              && curl -fsS "$BASE/agenda-manager/r07.js" -o /tmp/agenda-r07.js \
               && curl -fsS "$BASE/agenda-manager/manifest.webmanifest" -o /tmp/agenda-manifest.json \
               && curl -fsS "$BASE/agenda-manager/sw.js" -o /tmp/agenda-sw.js \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then
@@ -220,7 +233,7 @@ jobs:
             fi
             sleep 5
           done
-          for f in /tmp/online.html /tmp/dashboard.js /tmp/brazil-map.js /tmp/auto-refresh.js /tmp/smart-router.js /tmp/central-sync.js /tmp/central-crud.js /tmp/foca.html /tmp/agenda.html /tmp/agenda-client.js /tmp/agenda-manifest.json /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
+          for f in /tmp/online.html /tmp/dashboard.js /tmp/brazil-map.js /tmp/auto-refresh.js /tmp/smart-router.js /tmp/central-sync.js /tmp/central-crud.js /tmp/foca.html /tmp/agenda.html /tmp/agenda-client.js /tmp/agenda-r07.js /tmp/agenda-manifest.json /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
           grep -q "SGQ MANAGER" /tmp/online.html
           grep -q "ONLINE" /tmp/online.html
           grep -q "Histórico de Revisões" /tmp/online.html
@@ -246,9 +259,12 @@ jobs:
           grep -q "Agenda Manager" /tmp/agenda.html
           grep -q "Meu Dia" /tmp/agenda.html
           grep -q "Supabase/PostgreSQL" /tmp/agenda.html
+          grep -q "r07.js?v=20260830-r1" /tmp/agenda.html
           grep -q "agendaBootstrap" /tmp/agenda-client.js
+          grep -q "AGENDA_MANAGER_R07" /tmp/agenda-r07.js
+          grep -q "agenda_tenant_subscriptions" /tmp/agenda-r07.js
           grep -q '"name":"Agenda Manager"' /tmp/agenda-manifest.json
-          grep -q "agenda-manager-v0.1.0" /tmp/agenda-sw.js
+          grep -q "agenda-manager-v0.3-r07" /tmp/agenda-sw.js
           grep -q "$GITHUB_SHA" /tmp/release.json
 
       - name: Publicar status verde
@@ -256,7 +272,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ e Agenda Manager R06 SaaS publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ e Agenda Manager R07 comercial publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
