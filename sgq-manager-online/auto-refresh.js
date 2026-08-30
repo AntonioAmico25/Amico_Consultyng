@@ -3,7 +3,7 @@
 
   const INTERVAL_MS = 60000;
   const BRAZIL_MAP_SRC = 'brazil-map.js?v=20260830-r8';
-  const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@9caeedd118b9143644619678c6971d58e6a5e940/sgq-manager-online/master-admin.js';
+  const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@b9e3c57c145fe5c28c947d50ed4b9915d757f118/sgq-manager-online/master-admin.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
