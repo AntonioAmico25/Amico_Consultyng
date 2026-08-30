@@ -6,6 +6,7 @@
   const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@b9e3c57c145fe5c28c947d50ed4b9915d757f118/sgq-manager-online/master-admin.js';
   const AUTH_FIX_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/auth-session-fix.js';
   const PTBR_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/ptbr-ui.js';
+  const AGENDA_BRIDGE_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@12803a39cf9ace7adf127b618dd69bfe620a2a48/sgq-manager-online/agenda-bridge.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
@@ -18,6 +19,7 @@
   function ensureSupport(){
     if(!window.SGQSecureBoot)inject(AUTH_FIX_SRC,'sgqAuthFix');
     if(!window.SGQ_PTBR)inject(PTBR_SRC,'sgqPtbr');
+    if(!window.SGQAgendaBridge)inject(AGENDA_BRIDGE_SRC,'sgqAgendaBridge');
   }
   ensureSupport();
 
@@ -93,6 +95,7 @@
       const jobs = [];
       if (typeof window.loadDocs === 'function') jobs.push(window.loadDocs());
       if (typeof window.loadNorms === 'function') jobs.push(window.loadNorms());
+      if (typeof window.SGQAgendaBridge?.refresh === 'function') jobs.push(window.SGQAgendaBridge.refresh());
       await Promise.allSettled(jobs);
       if (typeof window.localAutomation === 'function') window.localAutomation();
       if (typeof window.renderExecutiveDashboard === 'function') window.renderExecutiveDashboard();
