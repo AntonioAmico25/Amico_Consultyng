@@ -1,36 +1,193 @@
 (() => {
 'use strict';
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const cls=v=>v>=80?'ok':v>=60?'warn':v>=40?'risk':'crit';
-const color=v=>v>=80?'#33c46b':v>=60?'#f2c94c':v>=40?'#f2994a':'#eb5757';
-const label=v=>v>=80?'Bom / Conforme':v>=60?'Atenção':v>=40?'Risco':'Crítico';
-let mode='SGQ',selected='ACTIONS';
 
-function installStyle(){if($('brMapStyle'))return;const s=document.createElement('style');s.id='brMapStyle';s.textContent=`
-.br-shell{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);gap:16px}.br-card{background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--panel) 94%,#000));border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 34px rgba(0,0,0,.12)}.br-main{padding:18px}.br-side{padding:14px;display:grid;gap:10px;align-content:start}.br-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}.br-title h2{margin:0;font-size:21px}.br-title p{margin:5px 0 0;color:var(--muted);font-size:12px}.br-mode{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.br-mode .btn{padding:7px 10px;font-size:11px}.br-mode .active{background:var(--accent);color:#fff;border-color:var(--accent)}.br-badge{padding:6px 9px;border-radius:999px;border:1px solid rgba(51,196,107,.45);color:#76e8a4;font-size:10px;font-weight:800;letter-spacing:.04em}.br-map-wrap{position:relative;min-height:520px;margin-top:14px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:radial-gradient(circle at 48% 44%,rgba(27,117,255,.12),transparent 58%),linear-gradient(180deg,var(--panel2),color-mix(in srgb,var(--panel2) 86%,#000))}.br-map-svg{width:100%;height:520px;display:block}.br-outline{fill:#143451;stroke:#4d6f92;stroke-width:2.2;filter:drop-shadow(0 12px 20px rgba(0,0,0,.28))}.br-gridline{stroke:#26445f;stroke-width:1;opacity:.55;fill:none}.br-marker{cursor:pointer;transition:transform .18s ease;transform-box:fill-box;transform-origin:center}.br-marker:hover{transform:scale(1.08)}.br-marker circle{fill:#0b1726;stroke-width:4}.br-marker text{fill:#fff;text-anchor:middle;font-weight:900;pointer-events:none}.br-marker .num{font-size:15px}.br-marker .count{font-size:9px;fill:#c8d6e5}.br-map-legend{position:absolute;left:14px;bottom:14px;background:rgba(6,16,28,.88);border:1px solid var(--line);border-radius:12px;padding:9px 11px;backdrop-filter:blur(6px);font-size:10px}.br-map-legend strong{display:block;margin-bottom:5px}.br-leg-row{display:flex;gap:10px;align-items:center;margin:3px 0;color:var(--muted)}.br-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.br-selected{position:absolute;right:14px;top:14px;min-width:210px;max-width:260px;background:rgba(6,16,28,.90);border:1px solid var(--line);border-radius:14px;padding:12px;backdrop-filter:blur(8px)}.br-selected h3{margin:0 0 8px;font-size:14px}.br-selected-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.br-selected-grid div{background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:9px;padding:7px}.br-selected-grid small{display:block;color:var(--muted);font-size:9px}.br-selected-grid b{font-size:15px}.br-module{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:13px;background:var(--panel2);cursor:pointer;transition:border-color .18s ease,transform .18s ease}.br-module:hover{transform:translateY(-1px);border-color:#4f79a4}.br-module.active{border-color:var(--module-color);box-shadow:inset 3px 0 0 var(--module-color)}.br-module-num{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#0b1726;border:2px solid var(--module-color);font-size:12px;font-weight:900}.br-module h4{margin:0;font-size:12px}.br-module p{margin:3px 0 0;color:var(--muted);font-size:10px}.br-module-metric{text-align:right}.br-module-metric b{display:block;font-size:17px}.br-module-metric small{font-size:9px;color:var(--muted)}.br-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}.br-kpi{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px;text-align:center}.br-kpi small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.br-kpi b{display:block;font-size:21px;margin-top:2px}.br-table-card{margin-top:14px;padding:16px}.br-table-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.br-table-head h3{margin:0;font-size:15px}.br-table-head p{margin:4px 0 0;color:var(--muted);font-size:11px}.br-table-wrap{overflow:auto;margin-top:10px}.br-table{width:100%;min-width:720px;border-collapse:collapse}.br-table th,.br-table td{padding:9px 8px;border-bottom:1px solid var(--line);font-size:11px;text-align:left}.br-table th{color:var(--muted);font-weight:700}.br-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 7px;font-weight:800}.br-pill.ok{color:#76e8a4;background:rgba(51,196,107,.10)}.br-pill.warn{color:#ffe08b;background:rgba(242,201,76,.10)}.br-pill.risk{color:#ffb16d;background:rgba(242,153,74,.10)}.br-pill.crit{color:#ff8a8a;background:rgba(235,87,87,.10)}.br-note{margin-top:8px;color:var(--muted);font-size:10px}@media(max-width:1120px){.br-shell{grid-template-columns:1fr}.br-side{grid-template-columns:1fr 1fr}.br-kpis{grid-column:1/-1}}@media(max-width:720px){.br-side{grid-template-columns:1fr}.br-map-svg{height:430px}.br-map-wrap{min-height:430px}.br-selected{position:static;margin:10px}.br-kpis{grid-template-columns:1fr 1fr 1fr}}
-`;document.head.appendChild(s);}
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const cls = v => v >= 80 ? 'ok' : v >= 60 ? 'warn' : v >= 40 ? 'risk' : 'crit';
+const color = v => v >= 80 ? '#33c46b' : v >= 60 ? '#f2c94c' : v >= 40 ? '#f2994a' : '#eb5757';
+const label = v => v >= 80 ? 'Bom / Conforme' : v >= 60 ? 'Atenção' : v >= 40 ? 'Risco' : 'Crítico';
+let selected = 'ACTIONS';
 
-function data(){const d=typeof db!=='undefined'&&db?db:{actions:[],audits:[],kpis:[],risks:[],alerts:[],events:[]};const docs=Array.isArray(window.docItems)?window.docItems:[];const norms=Array.isArray(window.normItems)?window.normItems:[];const normAlerts=Array.isArray(window.normAlerts)?window.normAlerts:[];const now=new Date();const actions=d.actions||[],open=actions.filter(x=>!['concluída','completed','verified','closed'].includes(String(x.status||'').toLowerCase())),late=open.filter(x=>x.due&&new Date(x.due+'T23:59:59')<now);const audits=d.audits||[],kpis=d.kpis||[],risks=d.risks||[];const badKpis=kpis.filter(x=>Number.isFinite(+x.value)&&Number.isFinite(+x.target)&&+x.value<+x.target).length;const critical=risks.filter(x=>(+(x.p||0)*+(x.i||0))>=15).length;const docDue=docs.filter(x=>x.next_review_date&&new Date(x.next_review_date+'T23:59:59')<now).length;const alerts=(d.alerts||[]).length+normAlerts.length;const score=(base,bad,total)=>Math.max(0,Math.min(100,Math.round(base-(total?bad/total*45:0))));return[
-{n:1,key:'DOCS',name:'Documentos',count:docs.length,bad:docDue,score:score(96,docDue,Math.max(1,docs.length)),view:'docs',sub:`${docDue} revisão(ões) vencida(s)`,x:255,y:115},
-{n:2,key:'ACTIONS',name:'RQ 045 / Ações',count:open.length,bad:late.length,score:score(95,late.length,Math.max(1,open.length)),view:'actions',sub:`${late.length} atrasada(s)`,x:380,y:150},
-{n:3,key:'AUDITS',name:'Auditorias',count:audits.length,bad:0,score:audits.length?88:70,view:'audits',sub:'programadas / realizadas',x:470,y:230},
-{n:4,key:'KPIS',name:'Indicadores',count:kpis.length,bad:badKpis,score:score(94,badKpis,Math.max(1,kpis.length)),view:'kpis',sub:`${badKpis} fora da meta`,x:405,y:315},
-{n:5,key:'RISKS',name:'Riscos',count:risks.length,bad:critical,score:score(93,critical,Math.max(1,risks.length)),view:'risks',sub:`${critical} crítico(s)`,x:285,y:285},
-{n:6,key:'NORMS',name:'Normas / Portarias',count:norms.length,bad:normAlerts.length,score:score(97,normAlerts.length,Math.max(1,norms.length)),view:'norms',sub:`${normAlerts.length} alerta(s)`,x:430,y:390},
-{n:7,key:'ALERTS',name:'Agenda / Alertas',count:alerts,bad:alerts,score:Math.max(45,95-alerts*3),view:'agenda',sub:'pendências do SGQ',x:325,y:405},
-{n:8,key:'HISTORY',name:'Histórico',count:(d.events||[]).length,bad:0,score:90,view:'history',sub:'eventos registrados',x:335,y:470}
-];}
+function installStyle(){
+  if ($('brMapStyle')) return;
+  const s = document.createElement('style');
+  s.id = 'brMapStyle';
+  s.textContent = `
+  .south-shell{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.85fr);gap:14px}
+  .south-card{background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--panel) 92%,#000));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 12px 34px rgba(0,0,0,.12)}
+  .south-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}.south-head h2,.south-head h3{margin:0}.south-head h2{font-size:23px}.south-head p{margin:5px 0 0;color:var(--muted)}
+  .south-badge{padding:6px 10px;border-radius:999px;border:1px solid rgba(51,196,107,.42);background:rgba(51,196,107,.08);color:#7fe3a5;font-size:11px;font-weight:800;letter-spacing:.04em}
+  .south-map-wrap{position:relative;height:590px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:radial-gradient(circle at 55% 40%,rgba(22,134,255,.13),transparent 52%),linear-gradient(180deg,var(--panel2),color-mix(in srgb,var(--panel2) 88%,#000))}
+  .south-map-svg{width:100%;height:100%;display:block}.south-state{cursor:pointer;transition:filter .18s ease,opacity .18s ease}.south-state path{fill:#173451;stroke:#6082a6;stroke-width:2.2;vector-effect:non-scaling-stroke}.south-state:hover path{filter:brightness(1.18)}.south-state text{fill:#d9e9f8;text-anchor:middle;font-weight:900;pointer-events:none}.south-state .uf{font-size:22px}.south-state .state-name{font-size:11px;fill:#9fb7cf}.south-watermark{fill:#7890aa;font-size:12px;letter-spacing:.16em;font-weight:800}
+  .south-marker{cursor:pointer}.south-marker circle{fill:#081523;stroke-width:4;filter:drop-shadow(0 5px 9px rgba(0,0,0,.38));transition:transform .14s ease}.south-marker:hover circle,.south-marker.active circle{transform:scale(1.08);transform-box:fill-box;transform-origin:center}.south-marker text{fill:#fff;text-anchor:middle;pointer-events:none}.south-marker .m-num{font-size:18px;font-weight:900}.south-marker .m-short{font-size:9px;font-weight:800;fill:#d6e4f1}.south-marker.active circle{stroke-width:6}
+  .south-legend{position:absolute;left:14px;bottom:14px;display:flex;gap:12px;flex-wrap:wrap;background:rgba(5,15,27,.88);border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:10px;color:#cbd7e4}.south-legend span{display:flex;align-items:center;gap:5px}.south-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+  .south-side{display:grid;gap:10px;align-content:start}.south-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.south-kpi{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:11px;text-align:center}.south-kpi small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.south-kpi b{display:block;font-size:23px;margin-top:2px}
+  .south-module-list{display:grid;gap:7px}.south-module{display:grid;grid-template-columns:11px 1fr auto;gap:9px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);cursor:pointer;transition:border-color .15s ease,transform .15s ease}.south-module:hover{transform:translateY(-1px)}.south-module.active{border-color:var(--module-color);box-shadow:0 0 0 1px color-mix(in srgb,var(--module-color) 42%,transparent)}.south-module i{width:9px;height:9px;border-radius:50%;background:var(--module-color)}.south-module strong{font-size:12px}.south-module small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.south-module b{font-size:17px}
+  .south-detail{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:13px}.south-detail h3{margin:0 0 9px}.south-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.south-detail-grid div{border:1px solid var(--line);border-radius:9px;padding:8px}.south-detail-grid small{color:var(--muted)}
+  .south-table-card{margin-top:14px}.south-table-wrap{overflow:auto;max-height:320px}.south-table{width:100%;min-width:760px;border-collapse:collapse}.south-table th,.south-table td{padding:9px;border-bottom:1px solid var(--line);font-size:12px;text-align:left}.south-table th{position:sticky;top:0;background:var(--panel);z-index:1}.south-pill{display:inline-block;padding:3px 7px;border-radius:999px;font-weight:800}.south-pill.ok{color:#7fe3a5;background:rgba(51,196,107,.10)}.south-pill.warn{color:#ffe080;background:rgba(242,201,76,.10)}.south-pill.risk{color:#ffb276;background:rgba(242,153,74,.10)}.south-pill.crit{color:#ff8c8c;background:rgba(235,87,87,.10)}
+  .south-foot{margin-top:9px;color:var(--muted);font-size:10px}.south-btn{white-space:nowrap}
+  @media(max-width:1100px){.south-shell{grid-template-columns:1fr}.south-side{grid-template-columns:1fr 1fr}.south-kpi-grid,.south-detail{grid-column:1/-1}}
+  @media(max-width:720px){.south-map-wrap{height:500px}.south-side{grid-template-columns:1fr}.south-kpi-grid,.south-detail{grid-column:auto}.south-kpi-grid{grid-template-columns:1fr 1fr 1fr}}
+  `;
+  document.head.appendChild(s);
+}
 
-function ensure(){const exec=$('execDashboard');if(!exec||$('brazilMapBlock'))return false;const wrap=document.createElement('div');wrap.id='brazilMapBlock';wrap.innerHTML=`<div class="br-shell"><section class="br-card br-main"><div class="br-head"><div class="br-title"><h2>Mapa Executivo — SGQ Manager Online</h2><p>Visão consolidada dos módulos, pendências e saúde operacional do SGQ.</p></div><div class="br-mode"><button class="btn active" id="brModeSgq" type="button">Dados SGQ Manager</button><button class="btn alt" id="brModeState" type="button">Por Estado</button><span class="br-badge">DADOS ONLINE</span></div></div><div class="br-map-wrap" id="brMapVisual"></div><div class="br-note">Clique nos marcadores ou nos cards laterais para abrir o módulo correspondente.</div></section><aside class="br-card br-side"><div class="br-kpis" id="brKpis"></div><div id="brModules"></div></aside></div><section class="br-card br-table-card"><div class="br-table-head"><div><h3 id="brTableTitle">Resumo dos módulos</h3><p id="brTableSubtitle">Registros, pendências, saúde e situação operacional.</p></div><button class="btn alt" id="brExportCsv" type="button">Exportar CSV</button></div><div id="brMapTable" class="br-table-wrap"></div></section>`;const ribbon=$('vectorRibbon');(ribbon?.parentNode||exec).insertBefore(wrap,ribbon?ribbon.nextSibling:exec.firstChild);$('brModeSgq').onclick=()=>{mode='SGQ';render()};$('brModeState').onclick=()=>{mode='STATE';render()};return true;}
-function openView(v){const btn=document.querySelector(`.nav[data-view="${v}"]`);if(btn)btn.click();}
-function setSelected(key,rows){selected=key;renderMap(rows);renderModules(rows);}
+function getData(){
+  const d = typeof db !== 'undefined' && db ? db : {actions:[],audits:[],kpis:[],risks:[],alerts:[],events:[]};
+  const docs = Array.isArray(window.docItems) ? window.docItems : [];
+  const norms = Array.isArray(window.normItems) ? window.normItems : [];
+  const normAlerts = Array.isArray(window.normAlerts) ? window.normAlerts : [];
+  const now = new Date();
+  const actions = d.actions || [];
+  const openActions = actions.filter(x => !['concluída','concluida','completed','closed','verified'].includes(String(x.status||'').toLowerCase()));
+  const lateActions = openActions.filter(x => x.due && new Date(x.due + 'T23:59:59') < now);
+  const audits = d.audits || [];
+  const kpis = d.kpis || [];
+  const risks = d.risks || [];
+  const badKpis = kpis.filter(x => Number.isFinite(+x.value) && Number.isFinite(+x.target) && +x.value < +x.target).length;
+  const criticalRisks = risks.filter(x => (+(x.p||x.probability||0) * +(x.i||x.impact||0)) >= 15).length;
+  const overdueDocs = docs.filter(x => x.next_review_date && new Date(x.next_review_date + 'T23:59:59') < now).length;
+  const alerts = (d.alerts || []).length + normAlerts.length;
+  const score = (base,bad,total) => Math.max(0,Math.min(100,Math.round(base-(total ? (bad/total)*45 : 0))));
+  return [
+    {key:'DOCS',name:'Documentos',short:'DOC',view:'docs',count:docs.length,bad:overdueDocs,score:score(96,overdueDocs,Math.max(1,docs.length)),sub:`${overdueDocs} revisão(ões) vencida(s)`,x:350,y:100},
+    {key:'ACTIONS',name:'RQ 045 / Ações',short:'RQ45',view:'actions',count:openActions.length,bad:lateActions.length,score:score(95,lateActions.length,Math.max(1,openActions.length)),sub:`${lateActions.length} ação(ões) atrasada(s)`,x:500,y:130},
+    {key:'AUDITS',name:'Auditorias',short:'AUD',view:'audits',count:audits.length,bad:0,score:audits.length?88:70,sub:'programadas / realizadas',x:425,y:205},
+    {key:'KPIS',name:'Indicadores',short:'KPI',view:'kpis',count:kpis.length,bad:badKpis,score:score(94,badKpis,Math.max(1,kpis.length)),sub:`${badKpis} fora da meta`,x:535,y:265},
+    {key:'RISKS',name:'Riscos',short:'RIS',view:'risks',count:risks.length,bad:criticalRisks,score:score(93,criticalRisks,Math.max(1,risks.length)),sub:`${criticalRisks} crítico(s)`,x:350,y:300},
+    {key:'NORMS',name:'Normas / Portarias',short:'NOR',view:'norms',count:norms.length,bad:normAlerts.length,score:score(97,normAlerts.length,Math.max(1,norms.length)),sub:`${normAlerts.length} alerta(s)`,x:465,y:365},
+    {key:'ALERTS',name:'Agenda / Alertas',short:'ALT',view:'agenda',count:alerts,bad:alerts,score:Math.max(45,95-alerts*3),sub:'pendências e alertas',x:315,y:420},
+    {key:'HISTORY',name:'Histórico',short:'HIS',view:'history',count:(d.events||[]).length,bad:0,score:90,sub:'eventos registrados',x:430,y:485}
+  ];
+}
 
-function renderMap(rows){const r=rows.find(x=>x.key===selected)||rows[0];$('brMapVisual').innerHTML=`<svg class="br-map-svg" viewBox="0 0 700 540" role="img" aria-label="Mapa executivo do SGQ Manager"><path class="br-outline" d="M185 42 L278 58 L352 40 L440 68 L516 126 L548 194 L535 250 L497 304 L474 356 L456 404 L418 451 L385 500 L340 512 L309 480 L280 437 L252 388 L226 345 L196 311 L170 268 L145 218 L137 166 L154 108 Z"/><path class="br-gridline" d="M240 80 L270 430 M340 62 L330 492 M435 90 L395 455 M170 210 L515 205 M200 305 L490 300 M245 395 L445 390"/>${rows.map(x=>`<g class="br-marker" data-key="${x.key}" data-view="${x.view}" transform="translate(${x.x},${x.y})"><circle r="24" stroke="${color(x.score)}"/><text class="num" y="2">${x.n}</text><text class="count" y="18">${x.count}</text></g>`).join('')}</svg><div class="br-selected"><h3>${esc(r.name)}</h3><div class="br-selected-grid"><div><small>Registros</small><b>${r.count}</b></div><div><small>Pendências</small><b>${r.bad}</b></div><div><small>Saúde</small><b style="color:${color(r.score)}">${r.score}%</b></div><div><small>Situação</small><b>${label(r.score)}</b></div></div><p class="br-note">${esc(r.sub)}</p></div><div class="br-map-legend"><strong>Saúde operacional</strong><div class="br-leg-row"><i class="br-dot" style="background:#33c46b"></i>Bom / Conforme ≥ 80%</div><div class="br-leg-row"><i class="br-dot" style="background:#f2c94c"></i>Atenção 60–79%</div><div class="br-leg-row"><i class="br-dot" style="background:#f2994a"></i>Risco 40–59%</div><div class="br-leg-row"><i class="br-dot" style="background:#eb5757"></i>Crítico &lt; 40%</div></div>`;$('brMapVisual').querySelectorAll('.br-marker').forEach(n=>{n.onclick=()=>{setSelected(n.dataset.key,rows);};n.ondblclick=()=>openView(n.dataset.view);});}
-function renderModules(rows){$('brModules').innerHTML=rows.map(r=>`<div class="br-module ${r.key===selected?'active':''}" data-key="${r.key}" data-view="${r.view}" style="--module-color:${color(r.score)}"><div class="br-module-num">${r.n}</div><div><h4>${esc(r.name)}</h4><p>${esc(r.sub)}</p></div><div class="br-module-metric"><b>${r.count}</b><small>${r.score}% saúde</small></div></div>`).join('');$('brModules').querySelectorAll('.br-module').forEach(m=>{m.onclick=()=>setSelected(m.dataset.key,rows);m.ondblclick=()=>openView(m.dataset.view);});}
-function renderSgq(){const rows=data();if(!rows.some(r=>r.key===selected))selected=rows[0]?.key;const avg=rows.length?Math.round(rows.reduce((a,b)=>a+b.score,0)/rows.length):0;const pending=rows.reduce((a,b)=>a+(b.bad||0),0);const critical=rows.filter(x=>x.score<60).length;$('brKpis').innerHTML=`<div class="br-kpi"><small>Saúde média</small><b style="color:${color(avg)}">${avg}%</b></div><div class="br-kpi"><small>Pendências</small><b>${pending}</b></div><div class="br-kpi"><small>Em risco</small><b>${critical}</b></div>`;renderMap(rows);renderModules(rows);$('brMapTable').innerHTML=`<table class="br-table"><thead><tr><th>Módulo</th><th>Registros</th><th>Pendências</th><th>Saúde</th><th>Situação</th><th>Acesso</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.n}. ${esc(r.name)}</td><td>${r.count}</td><td>${r.bad}</td><td><b style="color:${color(r.score)}">${r.score}%</b></td><td><span class="br-pill ${cls(r.score)}"><i class="br-dot" style="background:${color(r.score)}"></i>${label(r.score)}</span></td><td><button class="btn alt" data-view="${r.view}" type="button">Abrir</button></td></tr>`).join('')}</tbody></table>`;$('brMapTable').querySelectorAll('button[data-view]').forEach(b=>b.onclick=()=>openView(b.dataset.view));$('brExportCsv').onclick=()=>exportCsv(rows);}
-function renderState(){$('brKpis').innerHTML='';$('brModules').innerHTML='<div class="br-module active" style="--module-color:#67b7ff"><div class="br-module-num">UF</div><div><h4>Visão por Estado</h4><p>Modo secundário preservado.</p></div></div>';$('brMapVisual').innerHTML='<div style="padding:34px"><h3>Visão por Estado</h3><p class="muted">A leitura principal deste painel agora prioriza os dados reais do SGQ Manager. A visão geográfica detalhada por UF permanece como modo secundário.</p></div>';$('brMapTable').innerHTML='';}
-function exportCsv(rows){const all=[['Modulo','Registros','Pendencias','Saude','Situacao'],...rows.map(r=>[r.name,r.count,r.bad,r.score,label(r.score)])];const q=v=>`"${String(v??'').replaceAll('"','""')}"`;const csv=all.map(r=>r.map(q).join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='SGQ_Manager_Resumo_Modulos.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
-function render(){installStyle();ensure();const s=$('brModeSgq'),t=$('brModeState');if(s&&t){s.classList.toggle('active',mode==='SGQ');t.classList.toggle('active',mode==='STATE');}mode==='SGQ'?renderSgq():renderState();}
-window.renderBrazilMap=render;window.SGQBrazilMap={render,setMode:m=>{mode=m==='STATE'?'STATE':'SGQ';render()},getMode:()=>mode};setTimeout(()=>{try{render()}catch(e){console.error('SGQ Brazil map',e)}},900);
+function ensureShell(){
+  const exec = $('execDashboard');
+  if (!exec || $('brazilMapBlock')) return false;
+  const wrap = document.createElement('div');
+  wrap.id = 'brazilMapBlock';
+  wrap.innerHTML = `
+    <div class="south-shell">
+      <section class="south-card">
+        <div class="south-head">
+          <div><h2>Região Sul — Visão SGQ</h2><p>Mapa executivo do SGQ Manager Online com foco em Paraná, Santa Catarina e Rio Grande do Sul.</p></div>
+          <span class="south-badge">LAYOUT SUL · DADOS ONLINE</span>
+        </div>
+        <div class="south-map-wrap" id="southMapVisual"></div>
+        <div class="south-foot">Os marcadores representam módulos do SGQ Manager. A posição no mapa é visual e não atribui os registros a um estado sem informação de UF cadastrada.</div>
+      </section>
+      <aside class="south-side">
+        <div class="south-kpi-grid" id="southKpis"></div>
+        <div class="south-card"><div class="south-head"><div><h3>Módulos do SGQ</h3><p>Selecione para detalhar.</p></div></div><div class="south-module-list" id="southModuleList"></div></div>
+        <div class="south-detail" id="southDetail"></div>
+      </aside>
+    </div>
+    <section class="south-card south-table-card">
+      <div class="south-head"><div><h3>Resumo operacional do SGQ Manager</h3><p>Registros, pendências, saúde e situação por módulo.</p></div><button class="btn alt south-btn" id="southExportCsv" type="button">Exportar CSV</button></div>
+      <div class="south-table-wrap" id="southTable"></div>
+    </section>`;
+  const ribbon = $('vectorRibbon');
+  (ribbon?.parentNode || exec).insertBefore(wrap, ribbon ? ribbon.nextSibling : exec.firstChild);
+  return true;
+}
+
+function openView(view){
+  const btn = document.querySelector(`.nav[data-view="${view}"]`);
+  if (btn) btn.click();
+}
+
+function renderMap(rows){
+  const markers = rows.map(r => `
+    <g class="south-marker ${r.key===selected?'active':''}" data-key="${r.key}" data-view="${r.view}" transform="translate(${r.x},${r.y})">
+      <circle r="34" stroke="${color(r.score)}"/>
+      <text class="m-num" y="1">${r.count}</text>
+      <text class="m-short" y="17">${esc(r.short)}</text>
+    </g>`).join('');
+  $('southMapVisual').innerHTML = `
+    <svg class="south-map-svg" viewBox="0 0 760 590" role="img" aria-label="Mapa da Região Sul com módulos do SGQ Manager">
+      <text class="south-watermark" x="36" y="42">REGIÃO SUL · BRASIL</text>
+      <g class="south-state" data-uf="PR">
+        <path d="M268 58 L352 47 L429 63 L492 54 L548 80 L575 119 L558 158 L505 181 L452 177 L404 191 L351 175 L307 153 L276 117 Z"/>
+        <text class="uf" x="424" y="115">PR</text><text class="state-name" x="424" y="134">PARANÁ</text>
+      </g>
+      <g class="south-state" data-uf="SC">
+        <path d="M314 192 L373 180 L430 191 L485 184 L543 201 L576 224 L557 249 L505 254 L459 269 L414 258 L367 264 L326 245 L301 218 Z"/>
+        <text class="uf" x="445" y="224">SC</text><text class="state-name" x="445" y="242">SANTA CATARINA</text>
+      </g>
+      <g class="south-state" data-uf="RS">
+        <path d="M282 275 L346 259 L406 272 L457 268 L511 287 L545 322 L537 366 L507 404 L487 454 L451 506 L411 545 L366 525 L336 487 L307 452 L284 404 L251 370 L242 327 Z"/>
+        <text class="uf" x="398" y="382">RS</text><text class="state-name" x="398" y="402">RIO GRANDE DO SUL</text>
+      </g>
+      ${markers}
+    </svg>
+    <div class="south-legend"><span><i class="south-dot" style="background:#33c46b"></i>Bom ≥80</span><span><i class="south-dot" style="background:#f2c94c"></i>Atenção 60–79</span><span><i class="south-dot" style="background:#f2994a"></i>Risco 40–59</span><span><i class="south-dot" style="background:#eb5757"></i>Crítico &lt;40</span></div>`;
+  $('southMapVisual').querySelectorAll('.south-marker').forEach(node => {
+    node.onclick = () => { selected = node.dataset.key; render(); };
+    node.ondblclick = () => openView(node.dataset.view);
+  });
+}
+
+function renderSide(rows){
+  const avg = rows.length ? Math.round(rows.reduce((a,b)=>a+b.score,0)/rows.length) : 0;
+  const pending = rows.reduce((a,b)=>a+(b.bad||0),0);
+  const atRisk = rows.filter(r=>r.score<60).length;
+  $('southKpis').innerHTML = `
+    <div class="south-kpi"><small>Saúde média</small><b style="color:${color(avg)}">${avg}%</b></div>
+    <div class="south-kpi"><small>Pendências</small><b>${pending}</b></div>
+    <div class="south-kpi"><small>Em risco</small><b>${atRisk}</b></div>`;
+  $('southModuleList').innerHTML = rows.map(r => `
+    <div class="south-module ${r.key===selected?'active':''}" data-key="${r.key}" style="--module-color:${color(r.score)}">
+      <i></i><div><strong>${esc(r.name)}</strong><small>${esc(r.sub)}</small></div><b>${r.count}</b>
+    </div>`).join('');
+  $('southModuleList').querySelectorAll('.south-module').forEach(el => el.onclick = () => {selected=el.dataset.key;render();});
+  const r = rows.find(x=>x.key===selected) || rows[0];
+  $('southDetail').innerHTML = `
+    <h3>${esc(r.name)}</h3>
+    <div class="south-detail-grid">
+      <div><small>Registros</small><br><b>${r.count}</b></div>
+      <div><small>Pendências</small><br><b>${r.bad}</b></div>
+      <div><small>Saúde</small><br><b style="color:${color(r.score)}">${r.score}%</b></div>
+      <div><small>Situação</small><br><b>${label(r.score)}</b></div>
+    </div>
+    <p class="muted" style="margin:9px 0 0">${esc(r.sub)}</p>
+    <button class="btn" id="southOpenModule" type="button" style="margin-top:10px">Abrir módulo</button>`;
+  $('southOpenModule').onclick = () => openView(r.view);
+}
+
+function renderTable(rows){
+  $('southTable').innerHTML = `<table class="south-table"><thead><tr><th>Módulo</th><th>Registros</th><th>Pendências</th><th>Saúde</th><th>Situação</th><th>Acesso</th></tr></thead><tbody>${rows.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td>${r.count}</td><td>${r.bad}</td><td>${r.score}%</td><td><span class="south-pill ${cls(r.score)}">${label(r.score)}</span></td><td><button class="btn alt" data-view="${r.view}" type="button">Abrir</button></td></tr>`).join('')}</tbody></table>`;
+  $('southTable').querySelectorAll('button[data-view]').forEach(b => b.onclick = () => openView(b.dataset.view));
+  $('southExportCsv').onclick = () => exportCsv(rows);
+}
+
+function exportCsv(rows){
+  const all = [['Módulo','Registros','Pendências','Saúde','Situação'],...rows.map(r=>[r.name,r.count,r.bad,r.score,label(r.score)])];
+  const q = v => `"${String(v??'').replaceAll('"','""')}"`;
+  const csv = all.map(r=>r.map(q).join(';')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download = 'SGQ_Manager_Regiao_Sul.csv';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),500);
+}
+
+function render(){
+  try{
+    installStyle();
+    if (!ensureShell() && !$('brazilMapBlock')) return;
+    const rows = getData();
+    if (!rows.some(r=>r.key===selected)) selected = rows[0]?.key || 'ACTIONS';
+    renderMap(rows);
+    renderSide(rows);
+    renderTable(rows);
+  }catch(e){
+    console.error('SGQ Região Sul',e);
+    const el = $('southMapVisual');
+    if (el) el.innerHTML = `<div style="padding:25px" class="dangerText">Falha ao carregar visão Região Sul: ${esc(e.message||e)}</div>`;
+  }
+}
+
+window.renderBrazilMap = render;
+window.SGQBrazilMap = {render,setMode:()=>render(),getMode:()=> 'SOUTH'};
+setTimeout(render,1200);
 })();
