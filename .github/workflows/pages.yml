@@ -121,7 +121,7 @@ jobs:
           mkdir -p _site/sgq-manager-online _site/sgq-manager-foca _site/agenda-manager
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,agenda-bridge.js,productivity-studio.js} _site/sgq-manager-online/
-          sed -i 's#</head>#<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260830-r1"></script></head>#' _site/sgq-manager-online/index.html
+          sed -i 's|</head>|<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260830-r1"></script></head>|' _site/sgq-manager-online/index.html
           sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,manifest.webmanifest,sw.js} _site/agenda-manager/
