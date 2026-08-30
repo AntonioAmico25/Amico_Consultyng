@@ -7,6 +7,7 @@
   const AUTH_FIX_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/auth-session-fix.js';
   const PTBR_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/ptbr-ui.js';
   const AGENDA_BRIDGE_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@12803a39cf9ace7adf127b618dd69bfe620a2a48/sgq-manager-online/agenda-bridge.js';
+  const PRODUCTIVITY_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@fc729ad86c7e18dab7369cf985b5b54af7cd21e8/sgq-manager-online/productivity-studio.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
@@ -20,6 +21,7 @@
     if(!window.SGQSecureBoot)inject(AUTH_FIX_SRC,'sgqAuthFix');
     if(!window.SGQ_PTBR)inject(PTBR_SRC,'sgqPtbr');
     if(!window.SGQAgendaBridge)inject(AGENDA_BRIDGE_SRC,'sgqAgendaBridge');
+    if(!window.SGQProductivityStudio)inject(PRODUCTIVITY_SRC,'sgqProductivity');
   }
   ensureSupport();
 
@@ -101,6 +103,7 @@
       if (typeof window.renderExecutiveDashboard === 'function') window.renderExecutiveDashboard();
       if (typeof window.SGQBrazilMap?.render === 'function') await window.SGQBrazilMap.render();
       if (typeof window.SGQMasterAdmin?.load === 'function') await window.SGQMasterAdmin.load();
+      if (typeof window.SGQProductivityStudio?.render === 'function') window.SGQProductivityStudio.render();
       if (typeof window.SGQ_PTBR?.apply === 'function') window.SGQ_PTBR.apply();
       lastSuccess = new Date();
       lastError = null;
