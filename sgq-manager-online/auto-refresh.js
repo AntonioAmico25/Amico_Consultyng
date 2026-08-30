@@ -4,7 +4,6 @@
   const INTERVAL_MS = 60000;
   const BRAZIL_MAP_SRC = 'brazil-map.js?v=20260830-r8';
   const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@b9e3c57c145fe5c28c947d50ed4b9915d757f118/sgq-manager-online/master-admin.js';
-  const AUTH_FIX_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/auth-session-fix.js';
   const PTBR_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/ptbr-ui.js';
   const AGENDA_BRIDGE_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@12803a39cf9ace7adf127b618dd69bfe620a2a48/sgq-manager-online/agenda-bridge.js';
   const PRODUCTIVITY_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@fc729ad86c7e18dab7369cf985b5b54af7cd21e8/sgq-manager-online/productivity-studio.js';
@@ -18,7 +17,6 @@
     const s=document.createElement('script');s.src=src;s.async=true;s.dataset[key]='1';s.onerror=()=>console.error(`Falha ao carregar ${key}.`);document.head.appendChild(s);
   }
   function ensureSupport(){
-    if(!window.SGQSecureBoot)inject(AUTH_FIX_SRC,'sgqAuthFix');
     if(!window.SGQ_PTBR)inject(PTBR_SRC,'sgqPtbr');
     if(!window.SGQAgendaBridge)inject(AGENDA_BRIDGE_SRC,'sgqAgendaBridge');
     if(!window.SGQProductivityStudio)inject(PRODUCTIVITY_SRC,'sgqProductivity');
@@ -27,7 +25,7 @@
 
   function isAppActive() {
     const app = byId('appView');
-    return app && !app.classList.contains('hidden');
+    return app && !app.classList.contains('hidden') && document.body.classList.contains('sgq-explicit-auth');
   }
 
   function ensureBadge() {
@@ -121,13 +119,12 @@
 
   const bootTimer = setInterval(() => {
     ensureSupport();
+    if (!isAppActive()) return;
     ensureBadge();
     ensureBrazilMap();
     ensureMasterAdmin();
-    if (isAppActive()) {
-      clearInterval(bootTimer);
-      refreshAll();
-    }
+    clearInterval(bootTimer);
+    refreshAll();
   }, 1000);
 
   setInterval(refreshAll, INTERVAL_MS);
