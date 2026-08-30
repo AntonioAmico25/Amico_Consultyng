@@ -1,35 +1,245 @@
 (() => {
 'use strict';
-// Compatibilidade do pipeline legado: Mapa do Brasil / Região Sul.
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const STATES=[{uf:'PR',code:'41',name:'Paraná'},{uf:'SC',code:'42',name:'Santa Catarina'},{uf:'RS',code:'43',name:'Rio Grande do Sul'}];
-const sColor=v=>v==null?'#6f8195':v>=80?'#36c46b':v>=60?'#e7b93f':v>=40?'#ef8d3e':'#e45b5b';
-const sClass=v=>v==null?'neutral':v>=80?'ok':v>=60?'warn':v>=40?'risk':'crit';
-const sLabel=v=>v==null?'Sem dados por UF':v>=80?'Bom / Conforme':v>=60?'Atenção':v>=40?'Risco':'Crítico';
-let selectedUF='ALL', selectedModule='ACTIONS', geoCache=null;
 
-function css(){if($('southMapV3Style'))return;const s=document.createElement('style');s.id='southMapV3Style';s.textContent=`
-.smv3-shell{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(330px,.85fr);gap:16px;margin-top:14px}.smv3-card{background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--panel) 94%,#000));border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,.12)}.smv3-pad{padding:16px}.smv3-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.smv3-head h2,.smv3-head h3{margin:0}.smv3-head p{margin:5px 0 0;color:var(--muted)}.smv3-badge{padding:6px 10px;border-radius:999px;border:1px solid rgba(54,196,107,.4);background:rgba(54,196,107,.08);color:#8ae9ae;font-size:10px;font-weight:900;letter-spacing:.08em}.smv3-map{height:560px;margin-top:14px;border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative;background:radial-gradient(circle at 50% 45%,rgba(44,126,180,.11),transparent 55%),#0c1825}.smv3-svg{width:100%;height:100%;display:block}.smv3-state{cursor:pointer;transition:filter .16s ease,opacity .16s ease}.smv3-state path{stroke:#b8c8d8;stroke-width:1.7;vector-effect:non-scaling-stroke}.smv3-state:hover{filter:brightness(1.12)}.smv3-state.active path{stroke:#fff;stroke-width:3}.smv3-label{fill:#fff;font-size:15px;font-weight:900;text-anchor:middle;paint-order:stroke;stroke:#0b1622;stroke-width:3px;pointer-events:none}.smv3-sub{fill:#d7e1eb;font-size:9px;font-weight:700;text-anchor:middle;paint-order:stroke;stroke:#0b1622;stroke-width:2px;pointer-events:none}.smv3-loading{height:100%;display:grid;place-items:center;text-align:center;padding:30px;color:#aebed0}.smv3-statebar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.smv3-filter{padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);cursor:pointer;text-align:left}.smv3-filter.active{border-color:#7cc9ff}.smv3-filter b{display:block;font-size:11px}.smv3-filter small{color:var(--muted);font-size:9px}.smv3-side{display:grid;gap:12px;align-content:start}.smv3-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.smv3-kpi{padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;text-align:center}.smv3-kpi small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.smv3-kpi b{display:block;font-size:22px;margin-top:2px}.smv3-mods{display:grid;grid-template-columns:1fr 1fr;gap:8px}.smv3-mod{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);cursor:pointer}.smv3-mod.active{border-color:var(--mc)}.smv3-mod i{width:8px;height:8px;border-radius:50%;background:var(--mc)}.smv3-mod strong{display:block;font-size:11px}.smv3-mod small{display:block;color:var(--muted);font-size:9px}.smv3-mod b{font-size:16px}.smv3-detail{padding:13px;background:var(--panel2);border:1px solid var(--line);border-radius:14px}.smv3-detailgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.smv3-detailgrid div{padding:8px;border:1px solid var(--line);border-radius:9px}.smv3-detailgrid small{display:block;color:var(--muted);font-size:9px}.smv3-tablecard{margin-top:16px;padding:16px}.smv3-tablewrap{overflow:auto;max-height:330px}.smv3-table{width:100%;min-width:800px;border-collapse:collapse}.smv3-table th,.smv3-table td{padding:9px;border-bottom:1px solid var(--line);font-size:12px;text-align:left}.smv3-table th{position:sticky;top:0;background:var(--panel)}.smv3-pill{display:inline-block;padding:3px 7px;border-radius:999px;font-weight:800}.smv3-pill.ok{color:#86e7aa;background:rgba(54,196,107,.1)}.smv3-pill.warn{color:#ffe089;background:rgba(231,185,63,.1)}.smv3-pill.risk{color:#ffb279;background:rgba(239,141,62,.1)}.smv3-pill.crit{color:#ff9292;background:rgba(228,91,91,.1)}.smv3-pill.neutral{color:#bdcad6;background:rgba(112,131,153,.12)}.smv3-foot{margin-top:8px;color:var(--muted);font-size:10px}@media(max-width:1100px){.smv3-shell{grid-template-columns:1fr}.smv3-mods{grid-template-columns:repeat(4,1fr)}}@media(max-width:760px){.smv3-mods,.smv3-statebar{grid-template-columns:1fr 1fr}.smv3-map{height:470px}}@media(max-width:520px){.smv3-mods,.smv3-statebar,.smv3-kpis,.smv3-detailgrid{grid-template-columns:1fr}.smv3-map{height:410px}}
-`;document.head.appendChild(s)}
+const $ = id => document.getElementById(id);
+const SOUTH = ['PR','SC','RS'];
+const STATE_NAME = {PR:'Paraná',SC:'Santa Catarina',RS:'Rio Grande do Sul'};
+const IBGE = {
+  PR:'https://servicodados.ibge.gov.br/api/v3/malhas/estados/41?formato=application/vnd.geo+json&qualidade=minima',
+  SC:'https://servicodados.ibge.gov.br/api/v3/malhas/estados/42?formato=application/vnd.geo+json&qualidade=minima',
+  RS:'https://servicodados.ibge.gov.br/api/v3/malhas/estados/43?formato=application/vnd.geo+json&qualidade=minima'
+};
+const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = n => Math.max(0,Math.min(100,Math.round(Number(n)||0)));
+const color = v => v == null ? '#6f8196' : v >= 80 ? '#36c46b' : v >= 60 ? '#e7b93f' : v >= 40 ? '#ef8d3e' : '#e45b5b';
+const status = v => v == null ? 'Sem dados UF' : v >= 80 ? 'Bom / Conforme' : v >= 60 ? 'Atenção' : v >= 40 ? 'Risco' : 'Crítico';
+let selectedUF = 'ALL';
+let selectedModule = 'ACTIONS';
+let mapFeatures = {};
 
-function store(){const d=typeof db!=='undefined'&&db?db:{};return{actions:Array.isArray(d.actions)?d.actions:[],audits:Array.isArray(d.audits)?d.audits:[],kpis:Array.isArray(d.kpis)?d.kpis:[],risks:Array.isArray(d.risks)?d.risks:[],alerts:Array.isArray(d.alerts)?d.alerts:[],events:Array.isArray(d.events)?d.events:[],docs:Array.isArray(window.docItems)?window.docItems:[],norms:Array.isArray(window.normItems)?window.normItems:[],normAlerts:Array.isArray(window.normAlerts)?window.normAlerts:[]}}
-function uf(x){if(!x||typeof x!=='object')return'';const m=x.metadata&&typeof x.metadata==='object'?x.metadata:{};const vals=[x.uf,x.state_code,x.estado,x.state,x.company_state,x.unit_state,m.uf,m.state_code,m.estado,m.state];const raw=vals.find(v=>typeof v==='string'&&v.trim());if(!raw)return'';const t=raw.trim().toUpperCase();if(['PR','SC','RS'].includes(t))return t;if(t.includes('PARAN'))return'PR';if(t.includes('SANTA CATARINA'))return'SC';if(t.includes('RIO GRANDE DO SUL'))return'RS';return''}
-function modules(){const s=store(),now=new Date(),open=s.actions.filter(x=>!['concluída','concluida','completed','closed','verified'].includes(String(x.status||'').toLowerCase())),late=open.filter(x=>x.due&&new Date(x.due+'T23:59:59')<now),badK=s.kpis.filter(x=>Number.isFinite(+x.value)&&Number.isFinite(+x.target)&&+x.value<+x.target),crit=s.risks.filter(x=>(+(x.p||x.probability||0)*+(x.i||x.impact||0))>=15),due=s.docs.filter(x=>x.next_review_date&&new Date(x.next_review_date+'T23:59:59')<now),score=(base,bad,total)=>Math.max(0,Math.min(100,Math.round(base-(total?(bad/total)*45:0))));const a=[['DOCS','Documentos','docs',s.docs,due,score(96,due.length,Math.max(1,s.docs.length)),`${due.length} revisão(ões) vencida(s)`],['ACTIONS','RQ 045 / Ações','actions',open,late,score(95,late.length,Math.max(1,open.length)),`${late.length} ação(ões) atrasada(s)`],['AUDITS','Auditorias','audits',s.audits,[],s.audits.length?88:70,'programadas / realizadas'],['KPIS','Indicadores','kpis',s.kpis,badK,score(94,badK.length,Math.max(1,s.kpis.length)),`${badK.length} fora da meta`],['RISKS','Riscos','risks',s.risks,crit,score(93,crit.length,Math.max(1,s.risks.length)),`${crit.length} crítico(s)`],['NORMS','Normas / Portarias','norms',s.norms,s.normAlerts,score(97,s.normAlerts.length,Math.max(1,s.norms.length)),`${s.normAlerts.length} alerta(s)`],['ALERTS','Agenda / Alertas','agenda',s.alerts.concat(s.normAlerts),s.alerts.concat(s.normAlerts),Math.max(45,95-(s.alerts.length+s.normAlerts.length)*3),'pendências e alertas'],['HISTORY','Histórico','history',s.events,[],90,'eventos registrados']];return a.map(([key,name,view,items,badItems,score,sub])=>({key,name,view,items,badItems,score,sub,count:items.length,bad:badItems.length}))}
-function stateStats(ms){const out={};STATES.forEach(st=>{let count=0,bad=0;ms.forEach(m=>{count+=m.items.filter(x=>uf(x)===st.uf).length;bad+=m.badItems.filter(x=>uf(x)===st.uf).length});out[st.uf]={count,bad,score:count?Math.max(0,Math.min(100,Math.round(96-(bad/count)*50))):null}});return out}
+function installStyle(){
+  if ($('sgqSouthDataStyle')) return;
+  const s=document.createElement('style');
+  s.id='sgqSouthDataStyle';
+  s.textContent=`
+  .sgqs-shell{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(360px,.85fr);gap:16px;margin-top:14px}
+  .sgqs-card{background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--panel) 94%,#000));border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 34px rgba(0,0,0,.12)}
+  .sgqs-pad{padding:16px}.sgqs-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.sgqs-head h2,.sgqs-head h3{margin:0}.sgqs-head h2{font-size:23px}.sgqs-head p{margin:5px 0 0;color:var(--muted);max-width:720px}
+  .sgqs-badge{padding:6px 10px;border-radius:999px;border:1px solid rgba(54,196,107,.4);background:rgba(54,196,107,.08);color:#8ae9ae;font-size:10px;font-weight:900;letter-spacing:.07em}
+  .sgqs-map{position:relative;height:560px;margin-top:14px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:radial-gradient(circle at 58% 35%,rgba(27,113,183,.12),transparent 48%),#0b1725}
+  .sgqs-svg{width:100%;height:100%;display:block}.sgqs-state{cursor:pointer;transition:filter .16s ease,opacity .16s ease}.sgqs-state path{stroke:#7f98b1;stroke-width:1.2;vector-effect:non-scaling-stroke}.sgqs-state:hover{filter:brightness(1.12)}.sgqs-state.active path{stroke:#d8ecff;stroke-width:2.3}.sgqs-label{pointer-events:none;text-anchor:middle;fill:#fff;font-weight:900}.sgqs-label .uf{font-size:20px}.sgqs-label .count{font-size:14px}.sgqs-label .health{font-size:10px;fill:#d8e4ee}
+  .sgqs-mapmsg{position:absolute;left:14px;bottom:14px;right:14px;padding:9px 10px;border-radius:11px;background:rgba(4,13,23,.88);border:1px solid #31465d;color:#bdd0df;font-size:10px}.sgqs-mapmsg strong{color:#fff}
+  .sgqs-statefilters{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.sgqs-statebtn{padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);text-align:left;cursor:pointer}.sgqs-statebtn.active{border-color:#7cc9ff}.sgqs-statebtn b{display:block;font-size:11px}.sgqs-statebtn small{display:block;margin-top:2px;color:var(--muted);font-size:9px}
+  .sgqs-side{display:grid;gap:12px;align-content:start}.sgqs-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.sgqs-kpi{padding:12px;background:var(--panel2);border:1px solid var(--line);border-radius:12px}.sgqs-kpi small{display:block;color:var(--muted);font-size:9px;text-transform:uppercase}.sgqs-kpi b{display:block;font-size:24px;margin-top:2px}.sgqs-kpi span{font-size:9px;color:var(--muted)}
+  .sgqs-mods{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sgqs-mod{display:grid;grid-template-columns:10px 1fr auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);cursor:pointer;min-width:0}.sgqs-mod.active{border-color:var(--mc);box-shadow:0 0 0 1px color-mix(in srgb,var(--mc) 35%,transparent)}.sgqs-mod i{width:8px;height:8px;border-radius:50%;background:var(--mc)}.sgqs-mod strong{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sgqs-mod small{display:block;color:var(--muted);font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sgqs-mod b{font-size:16px}
+  .sgqs-detail{padding:13px;background:var(--panel2);border:1px solid var(--line);border-radius:14px}.sgqs-detail h3{margin:0 0 9px}.sgqs-detailgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.sgqs-detailgrid div{padding:8px;border:1px solid var(--line);border-radius:9px}.sgqs-detailgrid small{display:block;color:var(--muted);font-size:9px}.sgqs-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .sgqs-tablecard{margin-top:16px;padding:16px}.sgqs-tablewrap{overflow:auto;max-height:350px}.sgqs-table{width:100%;min-width:840px;border-collapse:collapse}.sgqs-table th,.sgqs-table td{padding:9px;border-bottom:1px solid var(--line);font-size:12px;text-align:left}.sgqs-table th{position:sticky;top:0;background:var(--panel);z-index:1}.sgqs-pill{display:inline-block;padding:3px 7px;border-radius:999px;font-weight:800}.sgqs-foot{margin-top:8px;color:var(--muted);font-size:10px}
+  @media(max-width:1150px){.sgqs-shell{grid-template-columns:1fr}.sgqs-mods{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:820px){.sgqs-mods{grid-template-columns:1fr 1fr}.sgqs-statefilters{grid-template-columns:1fr 1fr}.sgqs-map{height:470px}}
+  @media(max-width:560px){.sgqs-mods,.sgqs-statefilters,.sgqs-kpis,.sgqs-detailgrid{grid-template-columns:1fr}.sgqs-map{height:420px}}
+  `;
+  document.head.appendChild(s);
+}
 
-function shell(){const exec=$('execDashboard');if(!exec)return;const old=$('brazilMapBlock');if(old)old.remove();const w=document.createElement('div');w.id='brazilMapBlock';w.innerHTML=`<div class="smv3-shell"><section class="smv3-card smv3-pad"><div class="smv3-head"><div><h2>Mapa Regional Sul — SGQ Manager</h2><p>Nova cartografia interativa de Paraná, Santa Catarina e Rio Grande do Sul, usando malha geográfica oficial do IBGE quando disponível.</p></div><span class="smv3-badge">NOVO MAPA · V3</span></div><div class="smv3-map" id="smv3Map"><div class="smv3-loading">Carregando cartografia da Região Sul…</div></div><div class="smv3-statebar" id="smv3States"></div></section><aside class="smv3-side"><section class="smv3-card smv3-pad"><div class="smv3-kpis" id="smv3Kpis"></div></section><section class="smv3-card smv3-pad"><div class="smv3-head"><div><h3>Módulos do SGQ</h3><p>Selecione para detalhar; duplo clique abre o módulo.</p></div></div><div class="smv3-mods" id="smv3Mods"></div></section><section class="smv3-detail" id="smv3Detail"></section></aside></div><section class="smv3-card smv3-tablecard"><div class="smv3-head"><div><h3>Resumo operacional</h3><p id="smv3TableSub">Consolidado do SGQ Manager Online.</p></div><button class="btn alt" id="smv3Export" type="button">Exportar CSV</button></div><div class="smv3-tablewrap" id="smv3Table"></div><div class="smv3-foot">O mapa não distribui registros por localização quando a UF não está cadastrada. Fonte cartográfica preferencial: API de Malhas do IBGE.</div></section>`;const r=$('vectorRibbon');(r?.parentNode||exec).insertBefore(w,r?r.nextSibling:exec.firstChild)}
+function store(){
+  const d = typeof db !== 'undefined' && db ? db : {};
+  return {
+    actions:Array.isArray(d.actions)?d.actions:[], audits:Array.isArray(d.audits)?d.audits:[],
+    kpis:Array.isArray(d.kpis)?d.kpis:[], risks:Array.isArray(d.risks)?d.risks:[],
+    alerts:Array.isArray(d.alerts)?d.alerts:[], events:Array.isArray(d.events)?d.events:[],
+    docs:Array.isArray(window.docItems)?window.docItems:[], norms:Array.isArray(window.normItems)?window.normItems:[],
+    normAlerts:Array.isArray(window.normAlerts)?window.normAlerts:[]
+  };
+}
 
-function coordsOf(g,out=[]){if(!g)return out;const walk=a=>{if(!Array.isArray(a))return;if(typeof a[0]==='number'&&typeof a[1]==='number')out.push(a);else a.forEach(walk)};walk(g.coordinates);return out}
-function geomPath(g,b){const project=p=>{const x=45+(p[0]-b.minX)/(b.maxX-b.minX)*610;const y=510-(p[1]-b.minY)/(b.maxY-b.minY)*450;return [x,y]};const ring=r=>r.map((p,i)=>{const [x,y]=project(p);return`${i?'L':'M'}${x.toFixed(1)} ${y.toFixed(1)}`}).join(' ')+' Z';if(g.type==='Polygon')return g.coordinates.map(ring).join(' ');if(g.type==='MultiPolygon')return g.coordinates.flatMap(p=>p.map(ring)).join(' ');return''}
-function centroid(g,b){const pts=coordsOf(g,[]);if(!pts.length)return[350,270];let sx=0,sy=0;pts.forEach(p=>{sx+=p[0];sy+=p[1]});const p=[sx/pts.length,sy/pts.length];return[45+(p[0]-b.minX)/(b.maxX-b.minX)*610,510-(p[1]-b.minY)/(b.maxY-b.minY)*450]}
-async function loadGeo(){if(geoCache)return geoCache;const features=[];for(const st of STATES){const url=`https://servicodados.ibge.gov.br/api/v3/malhas/estados/${st.code}?formato=application/vnd.geo+json&qualidade=minima`;const r=await fetch(url,{cache:'force-cache'});if(!r.ok)throw new Error(`IBGE ${st.uf}: ${r.status}`);const j=await r.json();const f=j.type==='FeatureCollection'?j.features[0]:j;features.push({uf:st.uf,name:st.name,geometry:f.geometry||j.geometry})}geoCache=features;return features}
-function fallbackMap(st){$('smv3Map').innerHTML=`<div class="smv3-loading"><div><b>Cartografia temporariamente indisponível.</b><br><span>Os dados do SGQ continuam disponíveis pelos filtros PR, SC e RS abaixo.</span></div></div>`;renderStateButtons(st)}
-async function renderMap(st){try{const fs=await loadGeo();const pts=fs.flatMap(f=>coordsOf(f.geometry,[]));const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),b={minX:Math.min(...xs),maxX:Math.max(...xs),minY:Math.min(...ys),maxY:Math.max(...ys)};const paths=fs.map(f=>{const c=centroid(f.geometry,b),v=st[f.uf]?.score;return`<g class="smv3-state ${selectedUF===f.uf?'active':''}" data-uf="${f.uf}"><path d="${geomPath(f.geometry,b)}" fill="${sColor(v)}" opacity=".88"/><text class="smv3-label" x="${c[0]}" y="${c[1]}">${f.uf}</text><text class="smv3-sub" x="${c[0]}" y="${c[1]+17}">${st[f.uf].count} registro(s) · ${v==null?'N/D':v+'%'}</text></g>`}).join('');$('smv3Map').innerHTML=`<svg class="smv3-svg" viewBox="0 0 700 560" role="img" aria-label="Mapa da Região Sul do Brasil">${paths}</svg>`;$('smv3Map').querySelectorAll('.smv3-state').forEach(g=>g.onclick=()=>{selectedUF=selectedUF===g.dataset.uf?'ALL':g.dataset.uf;render()})}catch(e){console.warn('Mapa IBGE indisponível',e);fallbackMap(st)}}
-function renderStateButtons(st){$('smv3States').innerHTML=`<button class="smv3-filter ${selectedUF==='ALL'?'active':''}" data-uf="ALL"><b>Todos</b><small>Consolidado do SGQ</small></button>${STATES.map(x=>`<button class="smv3-filter ${selectedUF===x.uf?'active':''}" data-uf="${x.uf}"><b>${x.uf} · ${x.name}</b><small>${st[x.uf].count} registro(s) · ${st[x.uf].score==null?'N/D':st[x.uf].score+'%'}</small></button>`).join('')}`;$('smv3States').querySelectorAll('button').forEach(b=>b.onclick=()=>{selectedUF=b.dataset.uf;render()})}
-function openView(v){const b=document.querySelector(`.nav[data-view="${v}"]`);if(b)b.click()}
-function filteredModule(m){if(selectedUF==='ALL')return{...m,fc:m.count,fb:m.bad,fs:m.score};const items=m.items.filter(x=>uf(x)===selectedUF),bad=m.badItems.filter(x=>uf(x)===selectedUF);return{...m,fc:items.length,fb:bad.length,fs:items.length?Math.max(0,Math.min(100,Math.round(96-(bad.length/items.length)*50))):null}}
-function exportCsv(rows){const all=[['Modulo','UF','Registros','Pendencias','Saude','Situacao'],...rows.map(r=>[r.name,selectedUF,r.fc,r.fb,r.fs??'',sLabel(r.fs)])];const q=v=>`"${String(v??'').replaceAll('"','""')}"`;const csv=all.map(r=>r.map(q).join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download=`SGQ_Mapa_Sul_${selectedUF}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
-function render(){css();shell();const ms=modules(),st=stateStats(ms),rows=ms.map(filteredModule);renderStateButtons(st);renderMap(st);const avgVals=rows.map(x=>x.fs).filter(v=>v!=null),avg=avgVals.length?Math.round(avgVals.reduce((a,b)=>a+b,0)/avgVals.length):null,pending=rows.reduce((a,b)=>a+b.fb,0),records=rows.reduce((a,b)=>a+b.fc,0);$('smv3Kpis').innerHTML=`<div class="smv3-kpi"><small>Registros</small><b>${records}</b></div><div class="smv3-kpi"><small>Pendências</small><b>${pending}</b></div><div class="smv3-kpi"><small>Saúde média</small><b style="color:${sColor(avg)}">${avg==null?'N/D':avg+'%'}</b></div>`;$('smv3Mods').innerHTML=rows.map(r=>`<div class="smv3-mod ${r.key===selectedModule?'active':''}" data-key="${r.key}" data-view="${r.view}" style="--mc:${sColor(r.fs)}"><i></i><span><strong>${esc(r.name)}</strong><small>${esc(r.sub)}</small></span><b>${r.fc}</b></div>`).join('');$('smv3Mods').querySelectorAll('.smv3-mod').forEach(n=>{n.onclick=()=>{selectedModule=n.dataset.key;render()};n.ondblclick=()=>openView(n.dataset.view)});const sel=rows.find(r=>r.key===selectedModule)||rows[0];$('smv3Detail').innerHTML=`<h3>${esc(sel.name)}</h3><div class="smv3-detailgrid"><div><small>Registros</small><b>${sel.fc}</b></div><div><small>Pendências</small><b>${sel.fb}</b></div><div><small>Saúde</small><b style="color:${sColor(sel.fs)}">${sel.fs==null?'N/D':sel.fs+'%'}</b></div></div><p class="muted" style="margin:9px 0 0">Filtro territorial: <b>${selectedUF==='ALL'?'Consolidado':selectedUF}</b>. ${esc(sel.sub)}</p><button class="btn" id="smv3Open" type="button" style="margin-top:10px">Abrir ${esc(sel.name)}</button>`;$('smv3Open').onclick=()=>openView(sel.view);$('smv3TableSub').textContent=selectedUF==='ALL'?'Consolidado do SGQ Manager Online.':`Registros com UF ${selectedUF} identificada.`;$('smv3Table').innerHTML=`<table class="smv3-table"><thead><tr><th>Módulo</th><th>UF</th><th>Registros</th><th>Pendências</th><th>Saúde</th><th>Situação</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${selectedUF}</td><td>${r.fc}</td><td>${r.fb}</td><td>${r.fs==null?'N/D':r.fs+'%'}</td><td><span class="smv3-pill ${sClass(r.fs)}">${sLabel(r.fs)}</span></td></tr>`).join('')}</tbody></table>`;$('smv3Export').onclick=()=>exportCsv(rows)}
-window.renderBrazilMap=render;window.SGQBrazilMap={render,setState:ufCode=>{selectedUF=['PR','SC','RS'].includes(ufCode)?ufCode:'ALL';render()},getState:()=>selectedUF};setTimeout(()=>{try{render()}catch(e){console.error('SGQ South map v3',e)}},1200);
+function ufOf(x){
+  if(!x || typeof x!=='object') return '';
+  const m=x.metadata&&typeof x.metadata==='object'?x.metadata:{};
+  const vals=[x.uf,x.state_code,x.estado,x.state,x.company_state,x.unit_state,m.uf,m.state_code,m.estado,m.state,m.company_state,m.unit_state];
+  const raw=vals.find(v=>typeof v==='string'&&v.trim());
+  if(!raw) return '';
+  const t=raw.trim().toUpperCase();
+  if(SOUTH.includes(t)) return t;
+  if(t.includes('PARAN')) return 'PR';
+  if(t.includes('SANTA CATARINA')) return 'SC';
+  if(t.includes('RIO GRANDE DO SUL')) return 'RS';
+  return '';
+}
+
+function moduleData(){
+  const s=store(), now=new Date();
+  const closed=['concluída','concluida','completed','closed','verified','cancelled','cancelado'];
+  const open=s.actions.filter(x=>!closed.includes(String(x.status||'').toLowerCase()));
+  const late=open.filter(x=>{const due=x.due||x.due_date;return due&&new Date(String(due).slice(0,10)+'T23:59:59')<now;});
+  const badK=s.kpis.filter(x=>Number.isFinite(+x.value)&&Number.isFinite(+x.target)&&+x.value<+x.target);
+  const crit=s.risks.filter(x=>(+(x.p||x.probability||0)*+(x.i||x.impact||0))>=15 || String(x.classification||x.level||'').toLowerCase().includes('crít'));
+  const due=s.docs.filter(x=>x.next_review_date&&new Date(String(x.next_review_date).slice(0,10)+'T23:59:59')<now);
+  const allAlerts=s.alerts.concat(s.normAlerts);
+  const score=(base,bad,total)=>clamp(base-(total?(bad/total)*45:0));
+  const defs=[
+    ['DOCS','Documentos','docs',s.docs,due,score(96,due.length,Math.max(1,s.docs.length)),`${due.length} revisão(ões) vencida(s)`],
+    ['ACTIONS','RQ 045 / Ações','actions',open,late,score(95,late.length,Math.max(1,open.length)),`${late.length} ação(ões) atrasada(s)`],
+    ['AUDITS','Auditorias','audits',s.audits,[],s.audits.length?88:70,'programadas / realizadas'],
+    ['KPIS','Indicadores','kpis',s.kpis,badK,score(94,badK.length,Math.max(1,s.kpis.length)),`${badK.length} fora da meta`],
+    ['RISKS','Riscos','risks',s.risks,crit,score(93,crit.length,Math.max(1,s.risks.length)),`${crit.length} crítico(s)`],
+    ['NORMS','Normas / Portarias','norms',s.norms,s.normAlerts,score(97,s.normAlerts.length,Math.max(1,s.norms.length)),`${s.normAlerts.length} alerta(s)`],
+    ['ALERTS','Agenda / Alertas','agenda',allAlerts,allAlerts,Math.max(45,95-allAlerts.length*3),'pendências e alertas'],
+    ['HISTORY','Histórico','history',s.events,[],90,'eventos registrados']
+  ];
+  return defs.map(([key,name,view,items,badItems,scoreValue,sub])=>({key,name,view,items,badItems,score:scoreValue,sub,count:items.length,bad:badItems.length}));
+}
+
+function stateData(mods){
+  const out={};
+  SOUTH.forEach(code=>{
+    let count=0,bad=0;
+    mods.forEach(m=>{
+      count += m.items.filter(x=>ufOf(x)===code).length;
+      bad += m.badItems.filter(x=>ufOf(x)===code).length;
+    });
+    out[code]={count,bad,score:count?clamp(96-(bad/count)*50):null};
+  });
+  return out;
+}
+
+function ensureShell(){
+  const exec=$('execDashboard');
+  if(!exec || $('brazilMapBlock')) return;
+  const w=document.createElement('div');
+  w.id='brazilMapBlock';
+  w.innerHTML=`
+  <div class="sgqs-shell">
+    <section class="sgqs-card sgqs-pad">
+      <div class="sgqs-head"><div><h2>Região Sul — Dados do SGQ Manager</h2><p>PR, SC e RS com registros reais carregados no SGQ Manager Online. O consolidado permanece completo mesmo quando o registro ainda não possui UF.</p></div><span class="sgqs-badge">DADOS SGQ · ONLINE</span></div>
+      <div class="sgqs-map" id="sgqsMap"><div class="sgqs-mapmsg"><strong>Carregando malhas do IBGE…</strong> Os valores dentro de cada estado serão calculados somente a partir de registros que possuam UF cadastrada.</div></div>
+      <div class="sgqs-statefilters" id="sgqsStates"></div>
+    </section>
+    <aside class="sgqs-side">
+      <section class="sgqs-card sgqs-pad"><div class="sgqs-kpis" id="sgqsKpis"></div></section>
+      <section class="sgqs-card sgqs-pad"><div class="sgqs-head"><div><h3>Módulos do SGQ</h3><p>Dados atuais do sistema. Clique para detalhar.</p></div></div><div class="sgqs-mods" id="sgqsMods"></div></section>
+      <section class="sgqs-detail" id="sgqsDetail"></section>
+    </aside>
+  </div>
+  <section class="sgqs-card sgqs-tablecard"><div class="sgqs-head"><div><h3>Resumo operacional do SGQ</h3><p id="sgqsTableSub">Consolidado do SGQ Manager Online.</p></div><button class="btn alt" id="sgqsExport" type="button">Exportar CSV</button></div><div class="sgqs-tablewrap" id="sgqsTable"></div><div class="sgqs-foot">Saúde é um indicador operacional do painel. Registros sem UF não são atribuídos artificialmente a um estado.</div></section>`;
+  const ribbon=$('vectorRibbon');
+  (ribbon?.parentNode||exec).insertBefore(w,ribbon?ribbon.nextSibling:exec.firstChild);
+}
+
+function allCoordinates(geometry){
+  const out=[];
+  const walk=a=>{if(!Array.isArray(a))return;if(typeof a[0]==='number'&&typeof a[1]==='number')out.push(a);else a.forEach(walk);};
+  walk(geometry?.coordinates);
+  return out;
+}
+
+function bounds(features){
+  const pts=Object.values(features).flatMap(f=>allCoordinates(f.geometry));
+  if(!pts.length) return null;
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(([x,y])=>{minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);});
+  return {minX,maxX,minY,maxY};
+}
+
+function pathFromGeometry(geometry,b, W=720,H=500,p=28){
+  if(!geometry||!b) return '';
+  const sx=(W-p*2)/(b.maxX-b.minX||1), sy=(H-p*2)/(b.maxY-b.minY||1), sc=Math.min(sx,sy);
+  const ox=(W-(b.maxX-b.minX)*sc)/2, oy=(H-(b.maxY-b.minY)*sc)/2;
+  const proj=([x,y])=>[ox+(x-b.minX)*sc,H-(oy+(y-b.minY)*sc)];
+  const ring=r=>r.map((pt,i)=>{const [x,y]=proj(pt);return `${i?'L':'M'}${x.toFixed(1)},${y.toFixed(1)}`;}).join(' ')+' Z';
+  if(geometry.type==='Polygon') return geometry.coordinates.map(ring).join(' ');
+  if(geometry.type==='MultiPolygon') return geometry.coordinates.flatMap(poly=>poly.map(ring)).join(' ');
+  return '';
+}
+
+function centroid(geometry,b,W=720,H=500,p=28){
+  const pts=allCoordinates(geometry);if(!pts.length)return[0,0];
+  const avg=[pts.reduce((a,q)=>a+q[0],0)/pts.length,pts.reduce((a,q)=>a+q[1],0)/pts.length];
+  const sx=(W-p*2)/(b.maxX-b.minX||1), sy=(H-p*2)/(b.maxY-b.minY||1), sc=Math.min(sx,sy);
+  const ox=(W-(b.maxX-b.minX)*sc)/2, oy=(H-(b.maxY-b.minY)*sc)/2;
+  return [ox+(avg[0]-b.minX)*sc,H-(oy+(avg[1]-b.minY)*sc)];
+}
+
+async function loadIBGE(){
+  const tasks=SOUTH.map(async uf=>{
+    const r=await fetch(IBGE[uf],{cache:'force-cache'});
+    if(!r.ok) throw new Error(`IBGE ${uf}: ${r.status}`);
+    const j=await r.json();
+    const f=j.type==='FeatureCollection'?j.features?.[0]:j.type==='Feature'?j:null;
+    if(!f?.geometry) throw new Error(`Malha ${uf} inválida`);
+    mapFeatures[uf]=f;
+  });
+  await Promise.all(tasks);
+}
+
+function fallbackFeatures(){
+  const mk=(type,coordinates)=>({type:'Feature',geometry:{type,coordinates},properties:{}});
+  mapFeatures={
+    PR:mk('Polygon',[[[-54.7,-22.6],[-49.0,-22.6],[-48.4,-25.0],[-54.5,-25.5],[-54.7,-22.6]]]),
+    SC:mk('Polygon',[[[-53.9,-25.8],[-48.4,-25.8],[-48.6,-29.3],[-53.8,-28.4],[-53.9,-25.8]]]),
+    RS:mk('Polygon',[[[-57.7,-27.1],[-49.7,-28.0],[-49.8,-33.7],[-53.4,-33.8],[-57.7,-30.2],[-57.7,-27.1]]])
+  };
+}
+
+function drawMap(mods){
+  const st=stateData(mods), b=bounds(mapFeatures);
+  if(!b){fallbackFeatures();return drawMap(mods);}
+  const paths=SOUTH.map(uf=>{
+    const d=pathFromGeometry(mapFeatures[uf].geometry,b), [cx,cy]=centroid(mapFeatures[uf].geometry,b), v=st[uf];
+    return `<g class="sgqs-state ${selectedUF===uf?'active':''}" data-uf="${uf}"><path d="${d}" fill="${color(v.score)}" fill-opacity="${v.score==null?.28:.72}"/><text class="sgqs-label" x="${cx.toFixed(1)}" y="${(cy-12).toFixed(1)}"><tspan class="uf" x="${cx.toFixed(1)}">${uf}</tspan><tspan class="count" x="${cx.toFixed(1)}" dy="18">${v.count} registro(s)</tspan><tspan class="health" x="${cx.toFixed(1)}" dy="14">${v.score==null?'Sem dados UF':`${v.score}% · ${status(v.score)}`}</tspan></text></g>`;
+  }).join('');
+  $('sgqsMap').innerHTML=`<svg class="sgqs-svg" viewBox="0 0 720 500" role="img" aria-label="Mapa da Região Sul com dados do SGQ Manager">${paths}</svg><div class="sgqs-mapmsg"><strong>Fonte territorial: IBGE.</strong> Fonte operacional: SGQ Manager Online. Clique em um estado para filtrar os módulos e a tabela.</div>`;
+  document.querySelectorAll('.sgqs-state').forEach(el=>el.onclick=()=>{selectedUF=el.dataset.uf;render();});
+}
+
+function filteredModule(m){
+  if(selectedUF==='ALL') return m;
+  const items=m.items.filter(x=>ufOf(x)===selectedUF), badItems=m.badItems.filter(x=>ufOf(x)===selectedUF);
+  const score=items.length?clamp(96-(badItems.length/items.length)*50):null;
+  return {...m,items,badItems,count:items.length,bad:badItems.length,score};
+}
+
+function render(){
+  installStyle();ensureShell();if(!$('sgqsMap'))return;
+  const mods=moduleData(), fmods=mods.map(filteredModule), selected=fmods.find(x=>x.key===selectedModule)||fmods[0];
+  drawMap(mods);
+  const st=stateData(mods);
+  $('sgqsStates').innerHTML=`<button class="sgqs-statebtn ${selectedUF==='ALL'?'active':''}" data-uf="ALL"><b>Todos</b><small>Consolidado SGQ</small></button>`+SOUTH.map(u=>`<button class="sgqs-statebtn ${selectedUF===u?'active':''}" data-uf="${u}"><b>${u} · ${STATE_NAME[u]}</b><small>${st[u].count} registro(s) · ${st[u].score==null?'sem dados':st[u].score+'%'}</small></button>`).join('');
+  document.querySelectorAll('.sgqs-statebtn').forEach(b=>b.onclick=()=>{selectedUF=b.dataset.uf;render();});
+
+  const total=fmods.reduce((a,m)=>a+m.count,0), bad=fmods.reduce((a,m)=>a+m.bad,0), health=fmods.filter(m=>m.score!=null).length?Math.round(fmods.filter(m=>m.score!=null).reduce((a,m)=>a+m.score,0)/fmods.filter(m=>m.score!=null).length):0;
+  const noUF=mods.reduce((a,m)=>a+m.items.filter(x=>!ufOf(x)).length,0);
+  $('sgqsKpis').innerHTML=`
+    <div class="sgqs-kpi"><small>Registros</small><b>${total}</b><span>${selectedUF==='ALL'?'SGQ consolidado':selectedUF}</span></div>
+    <div class="sgqs-kpi"><small>Pendências</small><b>${bad}</b><span>itens requerendo atenção</span></div>
+    <div class="sgqs-kpi"><small>Saúde média</small><b>${health}%</b><span>${status(health)}</span></div>
+    <div class="sgqs-kpi"><small>Sem UF</small><b>${selectedUF==='ALL'?noUF:0}</b><span>permanecem no consolidado</span></div>`;
+
+  $('sgqsMods').innerHTML=fmods.map(m=>`<button class="sgqs-mod ${m.key===selectedModule?'active':''}" data-key="${m.key}" style="--mc:${color(m.score)}"><i></i><span><strong>${esc(m.name)}</strong><small>${esc(m.sub)}</small></span><b>${m.count}</b></button>`).join('');
+  document.querySelectorAll('.sgqs-mod').forEach(b=>{b.onclick=()=>{selectedModule=b.dataset.key;render();};b.ondblclick=()=>{const m=fmods.find(x=>x.key===b.dataset.key);const nav=document.querySelector(`.nav[data-view="${m?.view}"]`);if(nav)nav.click();};});
+
+  $('sgqsDetail').innerHTML=`<h3>${esc(selected.name)}</h3><div class="sgqs-detailgrid"><div><small>Registros</small><b>${selected.count}</b></div><div><small>Pendências</small><b>${selected.bad}</b></div><div><small>Saúde</small><b>${selected.score==null?'N/A':selected.score+'%'}</b></div></div><div class="sgqs-actions"><button class="btn alt" id="sgqsOpenModule" type="button">Abrir módulo</button><span class="sgqs-pill" style="background:${color(selected.score)}22;color:${color(selected.score)}">${status(selected.score)}</span></div>`;
+  $('sgqsOpenModule').onclick=()=>{const nav=document.querySelector(`.nav[data-view="${selected.view}"]`);if(nav)nav.click();};
+
+  $('sgqsTableSub').textContent=selectedUF==='ALL'?'Consolidado do SGQ Manager Online.':`Filtrado por ${selectedUF} · ${STATE_NAME[selectedUF]}.`;
+  $('sgqsTable').innerHTML=`<table class="sgqs-table"><thead><tr><th>Módulo</th><th>Registros</th><th>Pendências</th><th>Saúde</th><th>Situação</th><th>Escopo</th></tr></thead><tbody>${fmods.map(m=>`<tr><td>${esc(m.name)}</td><td>${m.count}</td><td>${m.bad}</td><td>${m.score==null?'N/A':m.score+'%'}</td><td><span class="sgqs-pill" style="background:${color(m.score)}22;color:${color(m.score)}">${status(m.score)}</span></td><td>${selectedUF==='ALL'?'Consolidado':selectedUF}</td></tr>`).join('')}</tbody></table>`;
+  $('sgqsExport').onclick=()=>exportCsv(fmods);
+}
+
+function exportCsv(mods){
+  const rows=[['Escopo','Módulo','Registros','Pendências','Saúde','Situação'],...mods.map(m=>[selectedUF,m.name,m.count,m.bad,m.score==null?'':m.score,status(m.score)])];
+  const csv='\ufeff'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`sgq-regiao-sul-${selectedUF.toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+async function init(){
+  try{
+    if(window.SGQCentralSync?.pullCentral) await window.SGQCentralSync.pullCentral();
+  }catch(e){console.warn('[SGQ mapa] sincronização central:',e);}
+  try{await loadIBGE();}catch(e){console.warn('[SGQ mapa] IBGE indisponível, usando fallback:',e);fallbackFeatures();}
+  render();
+}
+
+let tries=0;const timer=setInterval(()=>{tries++;if($('execDashboard')){clearInterval(timer);init();}else if(tries>40)clearInterval(timer);},250);
+window.SGQBrazilMap={render,refresh:init,getData:()=>({modules:moduleData(),states:stateData(moduleData())}),setState:uf=>{selectedUF=SOUTH.includes(uf)?uf:'ALL';render();},setModule:key=>{selectedModule=key;render();}};
+window.renderBrazilMap=render;
 })();
