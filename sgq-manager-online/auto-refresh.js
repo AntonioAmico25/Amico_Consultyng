@@ -4,11 +4,22 @@
   const INTERVAL_MS = 60000;
   const BRAZIL_MAP_SRC = 'brazil-map.js?v=20260830-r8';
   const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@b9e3c57c145fe5c28c947d50ed4b9915d757f118/sgq-manager-online/master-admin.js';
+  const AUTH_FIX_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/auth-session-fix.js';
+  const PTBR_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@6f2ba3dc982a81cf7fab4a55a65e8ca77a2f360b/sgq-manager-online/ptbr-ui.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
 
   const byId = id => document.getElementById(id);
+  function inject(src,key){
+    if(document.querySelector(`script[data-${key}]`))return;
+    const s=document.createElement('script');s.src=src;s.async=true;s.dataset[key]='1';s.onerror=()=>console.error(`Falha ao carregar ${key}.`);document.head.appendChild(s);
+  }
+  function ensureSupport(){
+    if(!window.SGQSecureBoot)inject(AUTH_FIX_SRC,'sgqAuthFix');
+    if(!window.SGQ_PTBR)inject(PTBR_SRC,'sgqPtbr');
+  }
+  ensureSupport();
 
   function isAppActive() {
     const app = byId('appView');
@@ -76,6 +87,7 @@
     refreshing = true;
     updateBadge('loading');
     try {
+      ensureSupport();
       ensureBrazilMap();
       ensureMasterAdmin();
       const jobs = [];
@@ -86,6 +98,7 @@
       if (typeof window.renderExecutiveDashboard === 'function') window.renderExecutiveDashboard();
       if (typeof window.SGQBrazilMap?.render === 'function') await window.SGQBrazilMap.render();
       if (typeof window.SGQMasterAdmin?.load === 'function') await window.SGQMasterAdmin.load();
+      if (typeof window.SGQ_PTBR?.apply === 'function') window.SGQ_PTBR.apply();
       lastSuccess = new Date();
       lastError = null;
       updateBadge('ok');
@@ -97,12 +110,11 @@
     }
   }
 
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) refreshAll();
-  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAll(); });
   window.addEventListener('online', refreshAll);
 
   const bootTimer = setInterval(() => {
+    ensureSupport();
     ensureBadge();
     ensureBrazilMap();
     ensureMasterAdmin();
