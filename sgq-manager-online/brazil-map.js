@@ -1,5 +1,6 @@
 (() => {
 'use strict';
+// Compatibilidade do pipeline legado: Mapa do Brasil.
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SOUTH=['PR','SC','RS'];
