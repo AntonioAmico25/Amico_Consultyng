@@ -2,7 +2,8 @@
   'use strict';
 
   const INTERVAL_MS = 60000;
-  const BRAZIL_MAP_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@48947bc2498931cdb777065d6803723835fbf06c/sgq-manager-online/brazil-map.js';
+  const BRAZIL_MAP_SRC = 'brazil-map.js?v=20260830-r8';
+  const MASTER_ADMIN_SRC = 'https://cdn.jsdelivr.net/gh/AntonioAmico25/Amico_Consultyng@9caeedd118b9143644619678c6971d58e6a5e940/sgq-manager-online/master-admin.js';
   let refreshing = false;
   let lastSuccess = null;
   let lastError = null;
@@ -15,7 +16,7 @@
   }
 
   function ensureBadge() {
-    const head = document.querySelector('#execDashboard .exec-head');
+    const head = document.querySelector('#execDashboard .exec-head, #execDashboard .exec-headline');
     if (!head || byId('execAutoUpdate')) return;
     const badge = document.createElement('span');
     badge.id = 'execAutoUpdate';
@@ -38,7 +39,17 @@
     s.src = BRAZIL_MAP_SRC;
     s.async = true;
     s.dataset.sgqBrazilMap = '1';
-    s.onerror = () => console.error('Falha ao carregar o Mapa do Brasil do SGQ Manager.');
+    s.onerror = () => console.error('Falha ao carregar o mapa regional do SGQ Manager.');
+    document.head.appendChild(s);
+  }
+
+  function ensureMasterAdmin() {
+    if (window.SGQMasterAdmin || document.querySelector('script[data-sgq-master-admin]')) return;
+    const s = document.createElement('script');
+    s.src = MASTER_ADMIN_SRC;
+    s.async = true;
+    s.dataset.sgqMasterAdmin = '1';
+    s.onerror = () => console.error('Falha ao carregar a Central de Administração MASTER.');
     document.head.appendChild(s);
   }
 
@@ -66,6 +77,7 @@
     updateBadge('loading');
     try {
       ensureBrazilMap();
+      ensureMasterAdmin();
       const jobs = [];
       if (typeof window.loadDocs === 'function') jobs.push(window.loadDocs());
       if (typeof window.loadNorms === 'function') jobs.push(window.loadNorms());
@@ -73,6 +85,7 @@
       if (typeof window.localAutomation === 'function') window.localAutomation();
       if (typeof window.renderExecutiveDashboard === 'function') window.renderExecutiveDashboard();
       if (typeof window.SGQBrazilMap?.render === 'function') await window.SGQBrazilMap.render();
+      if (typeof window.SGQMasterAdmin?.load === 'function') await window.SGQMasterAdmin.load();
       lastSuccess = new Date();
       lastError = null;
       updateBadge('ok');
@@ -92,6 +105,7 @@
   const bootTimer = setInterval(() => {
     ensureBadge();
     ensureBrazilMap();
+    ensureMasterAdmin();
     if (isAppActive()) {
       clearInterval(bootTimer);
       refreshAll();
