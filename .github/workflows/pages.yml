@@ -86,8 +86,10 @@ jobs:
           grep -q "ELEVADOR" "$DASH"
           grep -q "Relatório consolidado" "$DASH"
           grep -q "Histórico de Revisões" "$DASH"
-          grep -q "Mapa Regional Sul" "$MAP"
+          grep -q "Região Sul — Dados do SGQ Manager" "$MAP"
           grep -q "servicodados.ibge.gov.br" "$MAP"
+          grep -q "SGQCentralSync" "$MAP"
+          grep -q "moduleData" "$MAP"
           grep -q "renderBrazilMap" "$MAP"
           grep -q "INTERVAL_MS = 60000" "$AUTO"
           grep -q "Atualização automática ativa" "$AUTO"
@@ -163,7 +165,7 @@ jobs:
           mkdir -p _site/sgq-manager-foca _site/sgq-manager-online _site/agenda-manager
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js} _site/sgq-manager-online/
-          sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r7"></script><script src="auto-refresh.js?v=20260830-r3"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="auto-refresh.js?v=20260830-r3"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           cp agenda-manager/{index.html,supabase-client.js,manifest.webmanifest,sw.js} _site/agenda-manager/
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
@@ -224,13 +226,15 @@ jobs:
           grep -q "Histórico de Revisões" /tmp/online.html
           grep -q "localAutomation" /tmp/online.html
           grep -q "dashboard.js?v=20260830-r3" /tmp/online.html
-          grep -q "brazil-map.js?v=20260830-r7" /tmp/online.html
+          grep -q "brazil-map.js?v=20260830-r8" /tmp/online.html
           grep -q "central-crud.js?v=20260830-r2" /tmp/online.html
           grep -q "Dashboard Executivo do SGQ" /tmp/dashboard.js
           grep -q "CATRACA" /tmp/dashboard.js
           grep -q "ELEVADOR" /tmp/dashboard.js
-          grep -q "Mapa Regional Sul" /tmp/brazil-map.js
+          grep -q "Região Sul — Dados do SGQ Manager" /tmp/brazil-map.js
           grep -q "servicodados.ibge.gov.br" /tmp/brazil-map.js
+          grep -q "SGQCentralSync" /tmp/brazil-map.js
+          grep -q "moduleData" /tmp/brazil-map.js
           grep -q "renderBrazilMap" /tmp/brazil-map.js
           grep -q "INTERVAL_MS = 60000" /tmp/auto-refresh.js
           grep -q "Classificação automática ativa" /tmp/smart-router.js
