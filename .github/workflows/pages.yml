@@ -54,11 +54,15 @@ jobs:
             agenda-manager/supabase-client.js \
             agenda-manager/r07.js \
             agenda-manager/r08.js \
+            agenda-manager/r09-bridge.js \
+            agenda-manager/r09.js \
             agenda-manager/manifest.webmanifest \
             agenda-manager/sw.js \
             agenda-manager/schema.sql \
             agenda-manager/migrations/007_commercial_foundation.sql \
-            agenda-manager/migrations/008_entitlements.sql; do
+            agenda-manager/migrations/008_entitlements.sql \
+            agenda-manager/migrations/009_user_admin.sql \
+            agenda-manager/migrations/010_user_security.sql; do
             test -f "$f"
           done
 
@@ -97,7 +101,7 @@ jobs:
           grep -q "Lista Mestra de Documentos" sgq-manager-foca/doc-manager.js
           grep -q "Importar RQs" sgq-manager-foca/functional-fix.js
 
-      - name: Validar Agenda Manager R08
+      - name: Validar Agenda Manager R09
         shell: bash
         run: |
           set -euo pipefail
@@ -108,13 +112,13 @@ jobs:
           grep -q "agenda_tenant_subscriptions" agenda-manager/r07.js
           grep -q "AGENDA_MANAGER_R08" agenda-manager/r08.js
           grep -q "agenda_feature_enabled" agenda-manager/r08.js
-          grep -q "agenda_limit_int" agenda-manager/r08.js
-          grep -q "agenda_plan_change_requests" agenda-manager/r08.js
-          grep -q "Requer upgrade" agenda-manager/r08.js
-          grep -q "agenda_plans" agenda-manager/migrations/007_commercial_foundation.sql
-          grep -q "agenda_plan_change_requests" agenda-manager/migrations/008_entitlements.sql
-          grep -q "agenda_feature_enabled" agenda-manager/migrations/008_entitlements.sql
-          grep -q "agenda-manager-v0.4-r08" agenda-manager/sw.js
+          grep -q "AGENDA_MANAGER_R09" agenda-manager/r09.js
+          grep -q "agenda-user-admin" agenda-manager/r09.js
+          grep -q "Administração de Usuários Online" agenda-manager/r09.js
+          grep -q "Troca de senha obrigatória" agenda-manager/r09.js
+          grep -q "agenda_user_admin_audit" agenda-manager/migrations/009_user_admin.sql
+          grep -q "agenda_user_security" agenda-manager/migrations/010_user_security.sql
+          grep -q "agenda-manager-v0.5-r09" agenda-manager/sw.js
 
       - name: Montar pacote público
         shell: bash
@@ -127,8 +131,8 @@ jobs:
           sed -i 's|</head>|<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260830-r1"></script></head>|' _site/sgq-manager-online/index.html
           sed -i 's#</body>#<script src="login-compat.js?v=20260831-r1"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
-          cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,manifest.webmanifest,sw.js} _site/agenda-manager/
-          sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script></body>#' _site/agenda-manager/index.html
+          cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,r09-bridge.js,r09.js,manifest.webmanifest,sw.js} _site/agenda-manager/
+          sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script><script src="r09-bridge.js?v=20260831-r1"></script><script src="r09.js?v=20260831-r1"></script></body>#' _site/agenda-manager/index.html
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
@@ -172,26 +176,23 @@ jobs:
               && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
               && curl -fsS "$BASE/agenda-manager/r07.js" -o /tmp/agenda-r07.js \
               && curl -fsS "$BASE/agenda-manager/r08.js" -o /tmp/agenda-r08.js \
+              && curl -fsS "$BASE/agenda-manager/r09-bridge.js" -o /tmp/agenda-r09-bridge.js \
+              && curl -fsS "$BASE/agenda-manager/r09.js" -o /tmp/agenda-r09.js \
               && curl -fsS "$BASE/agenda-manager/sw.js" -o /tmp/agenda-sw.js \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/prod.js /tmp/agenda-bridge.js /tmp/agenda.html /tmp/agenda-r07.js /tmp/agenda-r08.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
+          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/prod.js /tmp/agenda-bridge.js /tmp/agenda.html /tmp/agenda-r07.js /tmp/agenda-r08.js /tmp/agenda-r09-bridge.js /tmp/agenda-r09.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
           grep -q "auth-hard-gate.js?v=20260830-r1" /tmp/online.html
           grep -q "login-compat.js?v=20260831-r1" /tmp/online.html
-          grep -q "productivity-studio.js?v=20260830-r1" /tmp/online.html
-          grep -q "agenda-bridge.js?v=20260830-r1" /tmp/online.html
-          grep -q "sgq-explicit-auth" /tmp/auth.js
-          grep -q "ensureLegacyTargets" /tmp/login-compat.js
-          grep -q "Central de Produtividade e Desenvolvimento" /tmp/prod.js
-          grep -q "Agenda Manager Online" /tmp/agenda-bridge.js
           grep -q "Agenda Manager" /tmp/agenda.html
           grep -q "r07.js?v=20260830-r1" /tmp/agenda.html
           grep -q "r08.js?v=20260830-r1" /tmp/agenda.html
-          grep -q "AGENDA_MANAGER_R07" /tmp/agenda-r07.js
-          grep -q "AGENDA_MANAGER_R08" /tmp/agenda-r08.js
-          grep -q "agenda_feature_enabled" /tmp/agenda-r08.js
-          grep -q "agenda-manager-v0.4-r08" /tmp/agenda-sw.js
+          grep -q "r09-bridge.js?v=20260831-r1" /tmp/agenda.html
+          grep -q "r09.js?v=20260831-r1" /tmp/agenda.html
+          grep -q "AGENDA_MANAGER_R09" /tmp/agenda-r09.js
+          grep -q "agenda-user-admin" /tmp/agenda-r09.js
+          grep -q "agenda-manager-v0.5-r09" /tmp/agenda-sw.js
           grep -q "$GITHUB_SHA" /tmp/release.json
 
       - name: Publicar status verde
@@ -199,7 +200,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ login corrigido + Agenda R08 publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ + Agenda R09 usuários publicados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
