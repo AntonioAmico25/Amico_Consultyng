@@ -1,0 +1,1 @@
+(()=>{'use strict';try{if(typeof sb!=='undefined')window.sb=sb;if(!Object.getOwnPropertyDescriptor(window,'tenant'))Object.defineProperty(window,'tenant',{configurable:true,get:()=>typeof tenant!=='undefined'?tenant:null});}catch(e){console.warn('R09 bridge:',e.message)}})();
