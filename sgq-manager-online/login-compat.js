@@ -1,55 +1,16 @@
 (() => {
   'use strict';
-
-  const LEGACY_IDS = [
-    'actList','audList','kpiList','riskList','alertList','agendaList','eventList',
-    'kd','ka','ku','ki','kn','kx','dashAlerts','dashDue','dashEvents'
-  ];
-
-  function ensureLegacyTargets(){
-    let box = document.getElementById('sgqLegacyCompatTargets');
-    if(!box){
-      box = document.createElement('div');
-      box.id = 'sgqLegacyCompatTargets';
-      box.hidden = true;
-      box.setAttribute('aria-hidden','true');
-      document.body.appendChild(box);
-    }
-    for(const id of LEGACY_IDS){
-      if(!document.getElementById(id)){
-        const el = document.createElement('div');
-        el.id = id;
-        box.appendChild(el);
-      }
-    }
-  }
-
-  function installSafeLocalAutomation(){
-    if(typeof window.localAutomation !== 'function' || window.localAutomation.__sgqSafe) return;
-    const original = window.localAutomation;
-    const safe = function(...args){
-      ensureLegacyTargets();
-      try {
-        return original.apply(this,args);
-      } catch(err){
-        console.error('SGQ localAutomation protegido:', err);
-        const msg = document.getElementById('loginMsg');
-        if(msg && /Cannot set properties of null/.test(String(err?.message||''))){
-          msg.textContent = 'Compatibilidade da interface aplicada. Tente entrar novamente.';
-        }
-      }
-    };
-    safe.__sgqSafe = true;
-    window.localAutomation = safe;
-  }
-
-  function install(){
-    ensureLegacyTargets();
-    installSafeLocalAutomation();
-    setTimeout(installSafeLocalAutomation, 500);
-    setTimeout(installSafeLocalAutomation, 1500);
-  }
-
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, {once:true});
-  else install();
+  const LEGACY_IDS=['actList','audList','kpiList','riskList','alertList','agendaList','eventList','kd','ka','ku','ki','kn','kx','dashAlerts','dashDue','dashEvents'];
+  const $=id=>document.getElementById(id), qa=(s,r=document)=>[...r.querySelectorAll(s)];
+  function ensureLegacyTargets(){let box=$('sgqLegacyCompatTargets');if(!box){box=document.createElement('div');box.id='sgqLegacyCompatTargets';box.hidden=true;box.setAttribute('aria-hidden','true');document.body.appendChild(box);}for(const id of LEGACY_IDS){if(!$(id)){const el=document.createElement('div');el.id=id;box.appendChild(el);}}}
+  function loadMasterAdmin(){if(window.__sgqMasterLoaded||document.querySelector('script[data-sgq-master]'))return;const s=document.createElement('script');s.src='master-admin.js?v=20260831-r2';s.dataset.sgqMaster='1';s.onload=()=>{window.__sgqMasterLoaded=true;setTimeout(reconcileMaster,300)};document.body.appendChild(s);}
+  function hideAll(){qa('.view').forEach(v=>v.classList.add('hidden'));const p=$('masterAdminPanel');if(p)p.classList.add('hidden');}
+  function showDash(){hideAll();$('dash')?.classList.remove('hidden');qa('.nav').forEach(n=>n.classList.toggle('active',n.dataset.view==='dash'));}
+  function reconcileMaster(){const p=$('masterAdminPanel'),side=document.querySelector('.side');if(!p||!side)return;p.classList.add('view','hidden');p.dataset.view='master-admin';let b=$('masterAdminNav');if(!b){b=document.createElement('button');b.id='masterAdminNav';b.className='nav hidden';b.dataset.view='master-admin';b.textContent='09 · Administração MASTER — Edição completa';const users=$('usersNav');side.insertBefore(b,users||side.querySelector('hr'));}const isMaster=($('sessionBadge')?.textContent||'').includes('MASTER');b.classList.toggle('hidden',!isMaster);if(users)b.textContent='10 · Usuários e acessos — MASTER';const hist=qa('.nav').find(n=>n.dataset.view==='history');if(hist)hist.textContent='11 · Histórico de Revisões';b.onclick=()=>{hideAll();p.classList.remove('hidden');qa('.nav').forEach(n=>n.classList.remove('active'));b.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});};}
+  function turnstileSvg(){return `<svg viewBox="0 0 360 210" role="img" aria-label="Controle de Fluxo"><defs><linearGradient id="tsg2" x1="0" x2="1"><stop stop-color="#2b3038"/><stop offset="1" stop-color="#090c10"/></linearGradient></defs><rect x="63" y="30" width="76" height="154" rx="15" fill="url(#tsg2)" stroke="#3f4853"/><rect x="76" y="15" width="68" height="43" rx="10" fill="#242a31" stroke="#3f4853"/><path d="M74 48h55" stroke="#28a9ff" stroke-width="5" stroke-linecap="round"/><rect x="105" y="23" width="25" height="16" rx="3" fill="#373e47"/><circle cx="139" cy="106" r="16" fill="#11161c" stroke="#cdd5dc" stroke-width="2"/><path d="M139 106l100-27M139 106l79 70M139 106l-35 91" stroke="#dfe7ee" stroke-width="10" stroke-linecap="round"/><path d="M139 106l100-27M139 106l79 70M139 106l-35 91" stroke="#7f8b96" stroke-width="2" stroke-linecap="round"/></svg>`;}
+  function liftSvg(){return `<svg viewBox="0 0 360 210" role="img" aria-label="Mobilidade"><defs><linearGradient id="lyg2" x1="0" x2="1"><stop stop-color="#fff400"/><stop offset="1" stop-color="#d1b700"/></linearGradient></defs><rect x="74" y="25" width="30" height="157" rx="4" fill="#171a1f"/><rect x="254" y="25" width="30" height="157" rx="4" fill="#171a1f"/><path d="M88 19v126M270 19v126" stroke="url(#lyg2)" stroke-width="11"/><path d="M91 147h180v34H91z" fill="#181b20" stroke="#ffe700" stroke-width="7"/><path d="M112 143h138V88H112z" fill="none" stroke="#ffe700" stroke-width="7"/><path d="M112 88l20 55M250 88l-20 55" stroke="#ffe700" stroke-width="7"/><rect x="250" y="62" width="58" height="75" rx="5" fill="#24282e"/><circle cx="278" cy="79" r="5" fill="#20c96b"/><circle cx="278" cy="98" r="5" fill="#ffcc33"/><circle cx="278" cy="117" r="5" fill="#ff4d4d"/></svg>`;}
+  function reconcileDashboard(){const dash=$('execDashboard');if(!dash)return;const boxes=qa('.machine-box',dash);if(boxes[0]){boxes[0].querySelector('h4')?.replaceChildren(document.createTextNode('Controle de Fluxo'));const p=boxes[0].querySelector('p');if(p)p.textContent='Catraca como vetor de controle de fluxo, liberação, segurança e rastreabilidade.';const s=boxes[0].querySelector('svg');if(s)s.outerHTML=turnstileSvg();const st=boxes[0].querySelector('.machine-status');if(st)st.textContent='CONTROLE DE FLUXO';}if(boxes[1]){boxes[1].querySelector('h4')?.replaceChildren(document.createTextNode('Mobilidade'));const p=boxes[1].querySelector('p');if(p)p.textContent='Plataforma elevatória como vetor de mobilidade, acessibilidade, segurança e conformidade.';const s=boxes[1].querySelector('svg');if(s)s.outerHTML=liftSvg();const st=boxes[1].querySelector('.machine-status');if(st)st.textContent='MOBILIDADE';}const sub=dash.querySelector('.exec-sub');if(sub)sub.textContent='Visão executiva do SGQ com Controle de Fluxo, Mobilidade, Velocímetro de Conformidade, indicadores, alertas e histórico.';}
+  function bindNav(){qa('.nav').forEach(b=>{if(b.dataset.compatBound)return;b.dataset.compatBound='1';b.addEventListener('click',()=>{if(b.dataset.view!=='master-admin')$('masterAdminPanel')?.classList.add('hidden');});});}
+  function install(){ensureLegacyTargets();loadMasterAdmin();setTimeout(()=>{showDash();reconcileMaster();reconcileDashboard();bindNav();},1400);setInterval(()=>{reconcileMaster();reconcileDashboard();bindNav();},1800);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
