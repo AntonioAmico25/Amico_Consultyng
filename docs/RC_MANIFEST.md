@@ -7,6 +7,8 @@ Este RC nasce da `main` atual e consolida somente componentes aprovados e rastre
 - F4.1: backend, dataset, testes, workflow e documentação incorporados seletivamente.
 - Web Shell: baseline documental incorporado; código visual ainda será reconciliado sem substituir o layout aprovado.
 - AMICO AI v0.9.0: entrada planejada em ondas, com Marketplace, Engineering Factory, identidade, créditos e shadow billing.
+- Política Corporativa de IA `POL-IA-001 R00`: incorporada em **homologação**, com matriz de risco, Human-in-the-Loop, segregação multitenant, Audit Log e gates GO/NO-GO.
+- Configuração operacional de governança: `config/ai-governance-2026-09-01.json`.
 - Produção: bloqueada até CI consolidado, UAT e GO/NO-GO.
 
 ## Definition of Done deste RC
@@ -17,4 +19,5 @@ Este RC nasce da `main` atual e consolida somente componentes aprovados e rastre
 5. Artifact Factory versionada e com revisão humana.
 6. Web/PWA responsiva validada.
 7. F4.1 concluído com provider real e evidências.
-8. GO/NO-GO formal antes do merge.
+8. `POL-IA-001 R00` homologada com evidência de RBAC/isolamento, Human-in-the-Loop e Audit Log.
+9. GO/NO-GO formal antes do merge ou promoção para produção.
