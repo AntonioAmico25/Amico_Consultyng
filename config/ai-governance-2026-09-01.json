@@ -1,0 +1,181 @@
+{
+  "release": "2026.09.01",
+  "policy": {
+    "code": "POL-IA-001",
+    "revision": "R00",
+    "status": "HOMOLOGACAO",
+    "document": "docs/POL-IA-001_POLITICA_CORPORATIVA_DE_IA_R00.md"
+  },
+  "applies_to": [
+    "amico-core",
+    "sgq-manager",
+    "erp",
+    "bpm",
+    "grc",
+    "bi",
+    "agents",
+    "automations",
+    "integrations",
+    "customer-projects"
+  ],
+  "principles": [
+    "legalidade",
+    "gestao_de_riscos",
+    "supervisao_humana",
+    "seguranca",
+    "privacidade",
+    "qualidade",
+    "rastreabilidade",
+    "transparencia",
+    "explicabilidade",
+    "responsabilidade",
+    "propriedade_intelectual",
+    "nao_discriminacao",
+    "resiliencia",
+    "melhoria_continua"
+  ],
+  "risk_classification": {
+    "LOW": {
+      "human_control": "USER_REVIEW",
+      "evidence_required": false,
+      "examples": ["organizacao_de_texto", "resumo", "apoio_administrativo"]
+    },
+    "MODERATE": {
+      "human_control": "HUMAN_VALIDATION",
+      "evidence_required": true,
+      "examples": ["analise_de_indicadores", "classificacao_documental", "priorizacao"]
+    },
+    "HIGH": {
+      "human_control": "MANDATORY_APPROVAL",
+      "evidence_required": true,
+      "audit_log_required": true,
+      "examples": ["avaliacao_de_riscos", "acao_corretiva", "decisao_sgq"]
+    },
+    "CRITICAL": {
+      "human_control": "FORMAL_HUMAN_DECISION",
+      "ai_role": "ADVISORY_ONLY",
+      "evidence_required": true,
+      "audit_log_required": true,
+      "examples": ["seguranca_de_pessoas", "decisao_legal", "certificacao", "bloqueio_operacional_relevante"]
+    }
+  },
+  "human_in_the_loop": {
+    "mandatory_for": [
+      "document_change",
+      "nonconformity_closure",
+      "external_communication",
+      "control_change",
+      "critical_action_execution",
+      "permission_change",
+      "irreversible_delete",
+      "high_risk_decision",
+      "critical_risk_decision"
+    ],
+    "principle": "IA recomenda; permissao, workflow e humano autorizam a execucao conforme risco."
+  },
+  "tenant_isolation": {
+    "mandatory": true,
+    "cross_tenant_access": "DENY",
+    "cross_tenant_inference": "DENY",
+    "memory_scope": "TENANT_AND_AUTHORIZATION"
+  },
+  "data_governance": {
+    "public_ai_services": "NO_UNCONTROLLED_CONFIDENTIAL_DATA",
+    "provider_review_fields": [
+      "purpose",
+      "contract",
+      "retention",
+      "location",
+      "security",
+      "confidentiality",
+      "training_use",
+      "deletion",
+      "data_rights"
+    ]
+  },
+  "agent_governance": {
+    "least_privilege": true,
+    "inventory_required": true,
+    "human_owner_required": true,
+    "versioning_required": true,
+    "kill_switch_required": true,
+    "scope_required": true,
+    "permission_profile_required": true
+  },
+  "audit_log": {
+    "required_for_high_and_critical": true,
+    "required_fields": [
+      "tenant_id",
+      "company_id",
+      "module",
+      "process",
+      "user_or_agent",
+      "timestamp",
+      "model",
+      "model_version",
+      "sources",
+      "tools",
+      "rules",
+      "result",
+      "human_decision",
+      "change_performed",
+      "exceptions"
+    ]
+  },
+  "transparency": {
+    "identify_ai_interaction": true,
+    "identify_material_ai_participation": true,
+    "identify_synthetic_content": true,
+    "explain_sources_rules_or_evidence_when_required": true,
+    "contest_and_correction_channel": true
+  },
+  "quality": {
+    "validate": [
+      "accuracy",
+      "consistency",
+      "fitness_for_purpose",
+      "robustness",
+      "security",
+      "performance",
+      "availability",
+      "unexpected_behavior"
+    ],
+    "hallucination_or_major_error": "REGISTER_EVENT_RISK_OR_NC_BY_CRITICALITY"
+  },
+  "change_management": {
+    "revalidation_triggers": [
+      "model_change",
+      "provider_change",
+      "model_version_change",
+      "master_prompt_change",
+      "rule_change",
+      "knowledge_base_change",
+      "integration_change",
+      "architecture_change"
+    ]
+  },
+  "lifecycle_gates": [
+    "CONSOLIDAR",
+    "IMPLEMENTAR",
+    "TESTAR",
+    "AUDITAR",
+    "HOMOLOGAR",
+    "GO_NO_GO",
+    "DOCUMENTAR_E_MELHORAR"
+  ],
+  "production_gate": {
+    "HIGH": "BLOCK_UNTIL_EVIDENCE_AND_APPROVAL",
+    "CRITICAL": "BLOCK_UNTIL_FORMAL_HUMAN_DECISION_AND_EVIDENCE"
+  },
+  "homologation_r00": {
+    "required_evidence": [
+      "master_management_review",
+      "rbac_and_tenant_isolation_test",
+      "high_risk_hitl_test",
+      "audit_log_evidence",
+      "data_confidentiality_validation",
+      "risk_matrix_validation",
+      "formal_revision_approval"
+    ]
+  }
+}
