@@ -80,6 +80,7 @@ jobs:
           grep -q "__sgqCreateClientWrapped" sgq-manager-online/auth-hard-gate.js
           grep -q "ensureLegacyTargets" sgq-manager-online/login-compat.js
           grep -q "actList" sgq-manager-online/login-compat.js
+          grep -q "VIEWPORT_MODULES_V1" sgq-manager-online/login-compat.js
           grep -q "Agenda Manager Online" sgq-manager-online/agenda-bridge.js
           grep -q "agm_tasks" sgq-manager-online/agenda-bridge.js
           grep -q "Central de Produtividade e Desenvolvimento" sgq-manager-online/productivity-studio.js
@@ -130,7 +131,7 @@ jobs:
           cp index.html _site/index.html
           cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,login-compat.js,agenda-bridge.js,productivity-studio.js} _site/sgq-manager-online/
           sed -i 's|</head>|<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260831-r4"></script></head>|' _site/sgq-manager-online/index.html
-          sed -i 's#</body>#<script src="login-compat.js?v=20260831-r4"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="login-compat.js?v=20260908-r5"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,r09-bridge.js,r09.js,manifest.webmanifest,sw.js} _site/agenda-manager/
           sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script><script src="r09-bridge.js?v=20260831-r1"></script><script src="r09.js?v=20260831-r1"></script></body>#' _site/agenda-manager/index.html
@@ -185,10 +186,11 @@ jobs:
           done
           for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/prod.js /tmp/agenda-bridge.js /tmp/agenda.html /tmp/agenda-r07.js /tmp/agenda-r08.js /tmp/agenda-r09-bridge.js /tmp/agenda-r09.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
           grep -q "auth-hard-gate.js?v=20260831-r4" /tmp/online.html
-          grep -q "login-compat.js?v=20260831-r4" /tmp/online.html
+          grep -q "login-compat.js?v=20260908-r5" /tmp/online.html
           grep -q "sgq-explicit-auth" /tmp/auth.js
           grep -q "__sgqCreateClientWrapped" /tmp/auth.js
           grep -q "ensureLegacyTargets" /tmp/login-compat.js
+          grep -q "VIEWPORT_MODULES_V1" /tmp/login-compat.js
           grep -q "Agenda Manager" /tmp/agenda.html
           grep -q "r07.js?v=20260830-r1" /tmp/agenda.html
           grep -q "r08.js?v=20260830-r1" /tmp/agenda.html
@@ -204,7 +206,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ auth r4 + Agenda R09 usuários publicados',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'SGQ modular viewport r5 publicado',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
