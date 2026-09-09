@@ -1,0 +1,142 @@
+/* SGQ Manager Online — Mapa Brasil Layout V2
+   Objetivo: manter o mapa limpo, com marcadores compactos e leitura executiva. */
+
+#brazilMapBlock .br-map-block{
+  grid-template-columns:minmax(0,2.2fr) minmax(280px,.8fr);
+  align-items:start;
+  gap:16px;
+}
+
+#brazilMapBlock .br-map-card{
+  border-radius:18px;
+  padding:18px;
+}
+
+#brazilMapBlock .br-head{
+  align-items:center;
+}
+
+#brazilMapBlock .br-head h2{
+  font-size:20px;
+  line-height:1.2;
+}
+
+#brazilMapBlock .br-head p{
+  font-size:12px;
+}
+
+#brazilMapBlock .br-mode{
+  gap:8px;
+  align-items:center;
+}
+
+#brazilMapBlock .br-mode .btn{
+  min-height:34px;
+  padding:7px 11px;
+  border-radius:10px;
+  font-size:11px;
+}
+
+#brazilMapBlock .br-map-wrap{
+  min-height:500px;
+  margin-top:14px;
+}
+
+#brazilLeafletMap{
+  height:500px !important;
+}
+
+/* Marcadores compactos: o mapa mostra situação e quantidade sem poluir a geografia. */
+#brazilMapBlock .br-module-label div{
+  min-width:42px !important;
+  width:42px;
+  height:42px;
+  box-sizing:border-box;
+  border-radius:50% !important;
+  padding:5px !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(7,17,31,.94) !important;
+  box-shadow:0 5px 14px rgba(0,0,0,.30) !important;
+}
+
+#brazilMapBlock .br-module-label b,
+#brazilMapBlock .br-module-label small{
+  display:none !important;
+}
+
+#brazilMapBlock .br-module-label span{
+  font-size:13px !important;
+  line-height:1 !important;
+  font-weight:900;
+}
+
+#brazilMapBlock .br-legend{
+  min-width:165px;
+  max-width:190px;
+  padding:9px 10px;
+  border-radius:10px;
+}
+
+#brazilMapBlock .br-leg{
+  font-size:10px;
+}
+
+/* Resumo do SGQ na lateral: leitura rápida e limpa. */
+#brazilMapBlock .br-side{
+  gap:10px;
+}
+
+#brazilMapBlock .br-kpi{
+  text-align:left;
+  padding:12px 14px;
+  border-radius:12px;
+}
+
+#brazilMapBlock .br-kpi small{
+  font-size:9px;
+  letter-spacing:.06em;
+}
+
+#brazilMapBlock .br-kpi b{
+  font-size:24px;
+  margin-top:2px;
+}
+
+#brazilMapBlock .br-detail{
+  min-height:auto;
+  padding:13px;
+}
+
+#brazilMapBlock .br-detail-grid{
+  grid-template-columns:1fr 1fr;
+}
+
+/* Tabela abaixo, separada visualmente do mapa. */
+#brazilMapBlock .br-table-card{
+  margin-top:16px;
+}
+
+#brazilMapBlock .br-table-wrap{
+  max-height:300px;
+}
+
+#brazilMapBlock .br-table th,
+#brazilMapBlock .br-table td{
+  padding:9px 10px;
+}
+
+@media(max-width:1100px){
+  #brazilMapBlock .br-map-block{grid-template-columns:1fr;}
+  #brazilMapBlock .br-side{grid-template-columns:repeat(3,minmax(0,1fr));}
+  #brazilMapBlock .br-detail{grid-column:1/-1;}
+}
+
+@media(max-width:760px){
+  #brazilMapBlock .br-map-card{padding:12px;}
+  #brazilMapBlock .br-side{grid-template-columns:1fr 1fr;}
+  #brazilLeafletMap{height:430px !important;}
+  #brazilMapBlock .br-map-wrap{min-height:430px;}
+  #brazilMapBlock .br-module-label div{width:36px;height:36px;min-width:36px !important;}
+}
