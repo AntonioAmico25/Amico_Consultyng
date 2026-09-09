@@ -41,6 +41,7 @@ jobs:
             sgq-manager-online/auth-hard-gate.js \
             sgq-manager-online/login-compat.js \
             sgq-manager-online/agenda-bridge.js \
+            sgq-manager-online/file-intelligence-bridge.js \
             sgq-manager-online/productivity-studio.js \
             sgq-manager-foca/index.html \
             sgq-manager-foca/app.js \
@@ -58,6 +59,7 @@ jobs:
             agenda-manager/r09.js \
             agenda-manager/r11.js \
             agenda-manager/r12.js \
+            agenda-manager/r12-open.js \
             agenda-manager/manifest.webmanifest \
             agenda-manager/sw.js \
             agenda-manager/schema.sql \
@@ -89,6 +91,9 @@ jobs:
           grep -q "VIEWPORT_MODULES_V1" sgq-manager-online/login-compat.js
           grep -q "Agenda Manager Online" sgq-manager-online/agenda-bridge.js
           grep -q "agm_tasks" sgq-manager-online/agenda-bridge.js
+          grep -q "Inteligência de Arquivos" sgq-manager-online/file-intelligence-bridge.js
+          grep -q "agenda_file_ingestions" sgq-manager-online/file-intelligence-bridge.js
+          grep -q "source_type','file" sgq-manager-online/file-intelligence-bridge.js
           grep -q "Central de Produtividade e Desenvolvimento" sgq-manager-online/productivity-studio.js
           grep -q "Word / Documentos" sgq-manager-online/productivity-studio.js
           grep -q "Excel / Planilhas" sgq-manager-online/productivity-studio.js
@@ -109,7 +114,7 @@ jobs:
           grep -q "Lista Mestra de Documentos" sgq-manager-foca/doc-manager.js
           grep -q "Importar RQs" sgq-manager-foca/functional-fix.js
 
-      - name: Validar Agenda Manager R12
+      - name: Validar Agenda Manager R13
         shell: bash
         run: |
           set -euo pipefail
@@ -123,10 +128,12 @@ jobs:
           grep -q "AGENDA_MANAGER_R11" agenda-manager/r11.js
           grep -q "AGENDA_MANAGER_R12" agenda-manager/r12.js
           grep -q "Importar arquivo e automatizar tarefas" agenda-manager/r12.js
+          grep -q "importar-arquivo" agenda-manager/r12-open.js
+          grep -q "source==='sgq'" agenda-manager/r12-open.js
           grep -q "agenda_file_ingestions" agenda-manager/migrations/013_file_ingestion.sql
           grep -q "agenda_file_task_candidates" agenda-manager/migrations/013_file_ingestion.sql
-          grep -q "agenda-file-analyze" supabase/functions/agenda-file-analyze/index.ts
-          grep -q "agenda-manager-v0.8-r12" agenda-manager/sw.js
+          grep -q "Agenda File Analyze R12" supabase/functions/agenda-file-analyze/index.ts
+          grep -q "agenda-manager-v0.9-r13" agenda-manager/sw.js
 
       - name: Montar pacote público
         shell: bash
@@ -135,12 +142,12 @@ jobs:
           rm -rf _site
           mkdir -p _site/sgq-manager-online _site/sgq-manager-foca _site/agenda-manager
           cp index.html _site/index.html
-          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,login-compat.js,agenda-bridge.js,productivity-studio.js} _site/sgq-manager-online/
+          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,login-compat.js,agenda-bridge.js,file-intelligence-bridge.js,productivity-studio.js} _site/sgq-manager-online/
           sed -i 's|</head>|<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260831-r4"></script></head>|' _site/sgq-manager-online/index.html
-          sed -i 's#</body>#<script src="login-compat.js?v=20260908-r5"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="login-compat.js?v=20260908-r5"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="file-intelligence-bridge.js?v=20260909-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
-          cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,r09-bridge.js,r09.js,r11.js,r12.js,manifest.webmanifest,sw.js} _site/agenda-manager/
-          sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script><script src="r09-bridge.js?v=20260908-r10"></script><script src="r09.js?v=20260831-r1"></script><script src="r11.js?v=20260908-r1"></script><script src="r12.js?v=20260908-r1"></script></body>#' _site/agenda-manager/index.html
+          cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,r09-bridge.js,r09.js,r11.js,r12.js,r12-open.js,manifest.webmanifest,sw.js} _site/agenda-manager/
+          sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script><script src="r09-bridge.js?v=20260908-r10"></script><script src="r09.js?v=20260831-r1"></script><script src="r11.js?v=20260908-r1"></script><script src="r12.js?v=20260908-r1"></script><script src="r12-open.js?v=20260909-r1"></script></body>#' _site/agenda-manager/index.html
           printf '{"commit":"%s","repository":"%s","published_at":"%s"}\n' "$GITHUB_SHA" "$GITHUB_REPOSITORY" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > _site/release.json
           touch _site/.nojekyll
 
@@ -179,26 +186,32 @@ jobs:
             if curl -fsS "$BASE/sgq-manager-online/" -o /tmp/online.html \
               && curl -fsS "$BASE/sgq-manager-online/auth-hard-gate.js" -o /tmp/auth.js \
               && curl -fsS "$BASE/sgq-manager-online/login-compat.js" -o /tmp/login-compat.js \
+              && curl -fsS "$BASE/sgq-manager-online/file-intelligence-bridge.js" -o /tmp/file-intel.js \
               && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
               && curl -fsS "$BASE/agenda-manager/r09-bridge.js" -o /tmp/agenda-r10.js \
               && curl -fsS "$BASE/agenda-manager/r09.js" -o /tmp/agenda-r09.js \
               && curl -fsS "$BASE/agenda-manager/r11.js" -o /tmp/agenda-r11.js \
               && curl -fsS "$BASE/agenda-manager/r12.js" -o /tmp/agenda-r12.js \
+              && curl -fsS "$BASE/agenda-manager/r12-open.js" -o /tmp/agenda-r12-open.js \
               && curl -fsS "$BASE/agenda-manager/sw.js" -o /tmp/agenda-sw.js \
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/agenda.html /tmp/agenda-r10.js /tmp/agenda-r09.js /tmp/agenda-r11.js /tmp/agenda-r12.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
+          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/file-intel.js /tmp/agenda.html /tmp/agenda-r10.js /tmp/agenda-r09.js /tmp/agenda-r11.js /tmp/agenda-r12.js /tmp/agenda-r12-open.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
           grep -q "auth-hard-gate.js?v=20260831-r4" /tmp/online.html
           grep -q "login-compat.js?v=20260908-r5" /tmp/online.html
+          grep -q "file-intelligence-bridge.js?v=20260909-r1" /tmp/online.html
+          grep -q "Inteligência de Arquivos" /tmp/file-intel.js
           grep -q "Agenda Manager" /tmp/agenda.html
           grep -q "r12.js?v=20260908-r1" /tmp/agenda.html
+          grep -q "r12-open.js?v=20260909-r1" /tmp/agenda.html
           grep -q "AGENDA_MANAGER_R10" /tmp/agenda-r10.js
           grep -q "AGENDA_MANAGER_R09" /tmp/agenda-r09.js
           grep -q "AGENDA_MANAGER_R11" /tmp/agenda-r11.js
           grep -q "AGENDA_MANAGER_R12" /tmp/agenda-r12.js
           grep -q "Importar arquivo e automatizar tarefas" /tmp/agenda-r12.js
-          grep -q "agenda-manager-v0.8-r12" /tmp/agenda-sw.js
+          grep -q "importar-arquivo" /tmp/agenda-r12-open.js
+          grep -q "agenda-manager-v0.9-r13" /tmp/agenda-sw.js
           grep -q "$GITHUB_SHA" /tmp/release.json
 
       - name: Publicar status verde
@@ -206,7 +219,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'Agenda Manager R12 publicada e validada',target_url:process.env.PAGE_URL})
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner,repo: context.repo.repo,sha:context.sha,state:'success',context:'pages/smoke-test',description:'Agenda R13 + SGQ publicados e validados',target_url:process.env.PAGE_URL})
 
       - name: Publicar status vermelho
         if: failure()
