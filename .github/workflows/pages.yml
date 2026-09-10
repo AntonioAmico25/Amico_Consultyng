@@ -37,6 +37,7 @@ jobs:
             sgq-manager-online/central-sync.js \
             sgq-manager-online/central-crud.js \
             sgq-manager-online/master-admin.js \
+            sgq-manager-online/master-admin-ux-v2.js \
             sgq-manager-online/ptbr-ui.js \
             sgq-manager-online/auth-hard-gate.js \
             sgq-manager-online/login-compat.js \
@@ -114,6 +115,8 @@ jobs:
           done
           ! grep -q 'min-height:calc(100vh - 112px)' sgq-manager-online/login-compat.js
           grep -q "function resolveView" sgq-manager-online/login-compat.js
+          grep -q "MASTER · ACESSO CONTROLADO" sgq-manager-online/master-admin-ux-v2.js
+          node --check sgq-manager-online/master-admin-ux-v2.js
 
       - name: Validar estrutura SGQ FOCA
         shell: bash
@@ -152,9 +155,9 @@ jobs:
           rm -rf _site
           mkdir -p _site/sgq-manager-online _site/sgq-manager-foca _site/agenda-manager
           cp index.html _site/index.html
-          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,ptbr-ui.js,auth-hard-gate.js,login-compat.js,agenda-bridge.js,file-intelligence-bridge.js,productivity-studio.js} _site/sgq-manager-online/
+          cp sgq-manager-online/{index.html,dashboard.js,brazil-map.js,auto-refresh.js,smart-router.js,central-sync.js,central-crud.js,master-admin.js,master-admin-ux-v2.js,ptbr-ui.js,auth-hard-gate.js,login-compat.js,agenda-bridge.js,file-intelligence-bridge.js,productivity-studio.js} _site/sgq-manager-online/
           sed -i 's|</head>|<style>body:not(.sgq-explicit-auth) #appView{display:none!important}body:not(.sgq-explicit-auth) #loginView{display:block!important}</style><script src="auth-hard-gate.js?v=20260831-r4"></script></head>|' _site/sgq-manager-online/index.html
-          sed -i 's#</body>#<script src="login-compat.js?v=20260909-r6"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="file-intelligence-bridge.js?v=20260909-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script></body>#' _site/sgq-manager-online/index.html
+          sed -i 's#</body>#<script src="login-compat.js?v=20260909-r6"></script><script src="dashboard.js?v=20260830-r3"></script><script src="brazil-map.js?v=20260830-r8"></script><script src="agenda-bridge.js?v=20260830-r1"></script><script src="file-intelligence-bridge.js?v=20260909-r1"></script><script src="productivity-studio.js?v=20260830-r1"></script><script src="auto-refresh.js?v=20260830-r6"></script><script src="smart-router.js?v=20260829-r2"></script><script src="central-sync.js?v=20260829-r2"></script><script src="central-crud.js?v=20260830-r2"></script><script src="master-admin-ux-v2.js?v=20260910-r1"></script></body>#' _site/sgq-manager-online/index.html
           cp sgq-manager-foca/{index.html,app.js,navigation.js,doc-manager.js,functional-fix.js,recovery.js,patch-r6.js,styles.css} _site/sgq-manager-foca/
           cp agenda-manager/{index.html,supabase-client.js,r07.js,r08.js,r09-bridge.js,r09.js,r11.js,r12.js,r12-open.js,manifest.webmanifest,sw.js} _site/agenda-manager/
           sed -i 's#</body>#<script src="r07.js?v=20260830-r1"></script><script src="r08.js?v=20260830-r1"></script><script src="r09-bridge.js?v=20260908-r10"></script><script src="r09.js?v=20260831-r1"></script><script src="r11.js?v=20260908-r1"></script><script src="r12.js?v=20260908-r1"></script><script src="r12-open.js?v=20260909-r1"></script></body>#' _site/agenda-manager/index.html
@@ -197,6 +200,7 @@ jobs:
               && curl -fsS "$BASE/sgq-manager-online/auth-hard-gate.js" -o /tmp/auth.js \
               && curl -fsS "$BASE/sgq-manager-online/login-compat.js" -o /tmp/login-compat.js \
               && curl -fsS "$BASE/sgq-manager-online/file-intelligence-bridge.js" -o /tmp/file-intel.js \
+              && curl -fsS "$BASE/sgq-manager-online/master-admin-ux-v2.js" -o /tmp/master-ux.js \
               && curl -fsS "$BASE/agenda-manager/" -o /tmp/agenda.html \
               && curl -fsS "$BASE/agenda-manager/r09-bridge.js" -o /tmp/agenda-r10.js \
               && curl -fsS "$BASE/agenda-manager/r09.js" -o /tmp/agenda-r09.js \
@@ -207,11 +211,13 @@ jobs:
               && curl -fsS "$BASE/release.json" -o /tmp/release.json; then break; fi
             sleep 5
           done
-          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/file-intel.js /tmp/agenda.html /tmp/agenda-r10.js /tmp/agenda-r09.js /tmp/agenda-r11.js /tmp/agenda-r12.js /tmp/agenda-r12-open.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
+          for f in /tmp/online.html /tmp/auth.js /tmp/login-compat.js /tmp/file-intel.js /tmp/master-ux.js /tmp/agenda.html /tmp/agenda-r10.js /tmp/agenda-r09.js /tmp/agenda-r11.js /tmp/agenda-r12.js /tmp/agenda-r12-open.js /tmp/agenda-sw.js /tmp/release.json; do test -s "$f"; done
           grep -q "auth-hard-gate.js?v=20260831-r4" /tmp/online.html
           grep -q "login-compat.js?v=20260909-r6" /tmp/online.html
           grep -q "file-intelligence-bridge.js?v=20260909-r1" /tmp/online.html
           grep -q "Inteligência de Arquivos" /tmp/file-intel.js
+          grep -q "master-admin-ux-v2.js?v=20260910-r1" /tmp/online.html
+          grep -q "MASTER · ACESSO CONTROLADO" /tmp/master-ux.js
           grep -q "Agenda Manager" /tmp/agenda.html
           grep -q "r12.js?v=20260908-r1" /tmp/agenda.html
           grep -q "r12-open.js?v=20260909-r1" /tmp/agenda.html
